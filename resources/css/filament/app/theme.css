@@ -1,0 +1,55 @@
+@import '/vendor/filament/filament/resources/css/theme.css';
+
+@config 'tailwind.config.js';
+
+.fi-topbar {
+    nav {
+        @apply bg-[#000000];
+
+        .fi-input-wrp {
+            @apply bg-white/10;
+
+            .fi-input {
+                @apply text-white;
+            }
+        }
+    }
+}
+
+.fi-sidebar-header {
+    @apply bg-[#000000];
+}
+
+.fi-topbar-item-button {
+    @apply bg-transparent;
+
+    .fi-topbar-item-label,
+    .fi-topbar-item-icon {
+        @apply text-gray-200;
+    }
+}
+
+.fi-topbar-item-button:hover:not(.fi-topbar-item-active) {
+    @apply bg-neutral-700;
+
+    .fi-topbar-item-label,
+    .fi-topbar-item-icon {
+        @apply text-gray-100;
+    }
+}
+
+.fi-topbar-item-active .fi-topbar-item-button,
+.fi-topbar-item-active .fi-topbar-item-button:hover {
+    @apply bg-neutral-800;
+
+    .fi-topbar-item-label,
+    .fi-topbar-item-icon {
+        @apply text-white;
+    }
+}
+
+.ticket-comment-body {
+    p {
+        @apply text-sm mb-2 last:mb-0;
+    }
+}

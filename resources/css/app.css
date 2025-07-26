@@ -1,0 +1,38 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.article-content {
+    & p,
+    & ul {
+        @apply text-sm;
+    }
+
+    & p:not(:last-child),
+    & ul:not(:last-child) {
+        @apply mb-4;
+    }
+
+    & h2 {
+        @apply text-xl;
+    }
+
+    & h3 {
+        @apply text-2xl;
+    }
+
+    & ul {
+        @apply list-disc list-inside;
+    }
+
+    & p a {
+        @apply underline font-semibold;
+    }
+}
+
+.form-description {
+    & p,
+    & ul {
+        @apply text-sm text-gray-500;
+    }
+}
