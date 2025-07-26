@@ -25,6 +25,7 @@ class ClientFactory extends Factory
     {
         return [
             'name' => fake()->name(),
+            'unique_id' => fake()->unique()->regexify('[A-Z]{3}[0-9]{4}'),
             'email' => fake()->unique()->safeEmail(),
             'password' => static::$password ??= Hash::make('password'),
             'remember_token' => Str::random(10),
