@@ -3,6 +3,7 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Enums\Users\UserType;
 use App\Traits\HasPermissions;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -25,6 +26,7 @@ class User extends Authenticatable
     protected $fillable = [
         'name',
         'email',
+        'user_type',
         'password',
         'is_active',
     ];
@@ -49,6 +51,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'user_type' => UserType::class,
             'is_active' => 'boolean',
         ];
     }
@@ -62,5 +65,64 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(Group::class)
             ->withTimestamps();
+    }
+
+    /**
+     * Check if user is an admin
+     */
+    public function isAdmin(): bool
+    {
+        return $this->user_type === UserType::ADMIN;
+    }
+
+    /**
+     * Check if user can supervise
+     */
+    public function canSupervise(): bool
+    {
+        return $this->user_type?->canSupervise() ?? false;
+    }
+
+    /**
+     * Check if user handles tickets directly
+     */
+    public function handlesTickets(): bool
+    {
+        return $this->user_type?->handlesTickets() ?? false;
+    }
+
+    /**
+     * Scope to filter users by type
+     */
+    public function scopeOfType($query, UserType $userType)
+    {
+        return $query->where('user_type', $userType->value);
+    }
+
+    /**
+     * Scope to get admin users
+     */
+    public function scopeAdmins($query)
+    {
+        return $query->where('user_type', UserType::ADMIN->value);
+    }
+
+    /**
+     * Scope to get agent users
+     */
+    public function scopeAgents($query)
+    {
+        return $query->where('user_type', UserType::AGENT->value);
+    }
+
+    /**
+     * Scope to get supervisor users
+     */
+    public function scopeSupervisors($query)
+    {
+        return $query->whereIn('user_type', [
+            UserType::CATEGORY_SUPERVISOR->value,
+            UserType::BUILDING_SUPERVISOR->value,
+        ]);
     }
 }

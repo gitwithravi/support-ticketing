@@ -2,6 +2,7 @@
 
 namespace App\Filament\Clusters\Settings\Resources;
 
+use App\Enums\Users\UserType;
 use App\Filament\Clusters\Settings;
 use App\Filament\Clusters\Settings\Resources\UserResource\Pages;
 use App\Filament\Clusters\Settings\Resources\UserResource\Pages\EditUser;
@@ -48,6 +49,15 @@ class UserResource extends Resource
                                         ->required()
                                         ->maxLength(255),
                                 ]),
+                            Forms\Components\Select::make('user_type')
+                                ->label(__('User Type'))
+                                ->options(UserType::options())
+                                ->default(UserType::AGENT->value)
+                                ->required()
+                                ->live()
+                                ->helperText(fn (Forms\Get $get): ?string => 
+                                    $get('user_type') ? UserType::from($get('user_type'))->getDescription() : null
+                                ),
                             Forms\Components\Toggle::make('send_welcome_email')
                                 ->label('Send welcome email')
                                 ->default(true)
@@ -140,9 +150,17 @@ class UserResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('name')
-                    ->searchable(),
+                    ->searchable()
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('email')
-                    ->searchable(),
+                    ->searchable()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('user_type')
+                    ->label(__('User Type'))
+                    ->badge()
+                    ->color(fn (UserType $state): string => $state->getColor())
+                    ->icon(fn (UserType $state): string => $state->getIcon())
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('groups_count')
                     ->counts('groups')
                     ->label(__('Groups')),
@@ -159,7 +177,18 @@ class UserResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                Tables\Filters\SelectFilter::make('user_type')
+                    ->label(__('User Type'))
+                    ->options(UserType::options())
+                    ->searchable()
+                    ->preload(),
+                
+                Tables\Filters\TernaryFilter::make('is_active')
+                    ->label(__('Active'))
+                    ->boolean()
+                    ->trueLabel(__('Active users'))
+                    ->falseLabel(__('Inactive users'))
+                    ->native(false),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
@@ -168,7 +197,13 @@ class UserResource extends Resource
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
-            ]);
+            ])
+            ->groups([
+                Tables\Grouping\Group::make('user_type')
+                    ->label(__('User Type'))
+                    ->collapsible(),
+            ])
+            ->defaultSort('name');
     }
 
     public static function getRelations(): array
