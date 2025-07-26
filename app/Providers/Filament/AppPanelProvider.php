@@ -38,7 +38,7 @@ class AppPanelProvider extends PanelProvider
             $path = $generalSettings->app_path;
             $font = $generalSettings->branding_primary_font;
         } catch (QueryException $e) {
-            $path = 'eagle';
+            $path = 'admin';
             $font = 'Lexend';
         }
 
