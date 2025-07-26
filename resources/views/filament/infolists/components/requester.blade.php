@@ -33,6 +33,16 @@
 
             <div class="flex items-center justify-between">
                 <div class="flex items-center gap-1">
+                    <x-heroicon-s-identification class="h-4 w-4"/>
+                    <p class="text-sm font-medium leading-6 text-gray-950">{{ __('Employee/Registration ID') }}</p>
+                </div>
+                <p class="text-sm">
+                    {{ $getRecord()->requester->unique_id ?? '-' }}
+                </p>
+            </div>
+
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-1">
                     <x-heroicon-s-phone class="h-4 w-4"/>
                     <p class="text-sm font-medium leading-6 text-gray-950">{{ __('Phone') }}</p>
                 </div>

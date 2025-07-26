@@ -2,10 +2,14 @@
 
 namespace App\Filament\Client\Resources;
 
+use App\Enums\Tickets\TicketPriority;
 use App\Enums\Tickets\TicketStatus;
+use App\Enums\Tickets\TicketType;
 use App\Filament\Client\Resources\TicketResource\Pages;
 use App\Filament\Forms\Components\TicketComments;
 use App\Filament\Resources\TicketResource\RelationManagers\FieldsRelationManager;
+use App\Models\Building;
+use App\Models\Category;
 use App\Models\Ticket;
 use Filament\Forms;
 use Filament\Forms\Components\Livewire;
@@ -90,29 +94,76 @@ class TicketResource extends Resource
                     ->copyable()
                     ->copyMessage(__('Ticket ID copied to clipboard'))
                     ->copyMessageDuration(1500)
-                    ->searchable(),
+                    ->searchable()
+                    ->sortable(),
+                    
                 Tables\Columns\TextColumn::make('subject')
                     ->label(__('Subject'))
-                    ->searchable(),
+                    ->searchable()
+                    ->limit(50)
+                    ->tooltip(function (Tables\Columns\TextColumn $column): ?string {
+                        $state = $column->getState();
+                        return strlen($state) > 50 ? $state : null;
+                    }),
+
+                Tables\Columns\TextColumn::make('building.name')
+                    ->label(__('Building'))
+                    ->searchable()
+                    ->sortable()
+                    ->toggleable(),
+
+                Tables\Columns\TextColumn::make('room_no')
+                    ->label(__('Room'))
+                    ->searchable()
+                    ->sortable()
+                    ->toggleable(),
+
+                Tables\Columns\TextColumn::make('category.name')
+                    ->label(__('Category'))
+                    ->searchable()
+                    ->sortable()
+                    ->toggleable(),
+
+                Tables\Columns\TextColumn::make('subCategory.name')
+                    ->label(__('Sub Category'))
+                    ->searchable()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+
                 Tables\Columns\TextColumn::make('priority')
                     ->label(__('Priority'))
                     ->badge()
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('type')
-                    ->label(__('Type'))
-                    ->badge()
-                    ->searchable(),
+                    ->searchable()
+                    ->sortable(),
+
                 Tables\Columns\TextColumn::make('status')
                     ->label(__('Status'))
                     ->badge()
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('created_at')
-                    ->label(__('Created at'))
-                    ->dateTime()
+                    ->searchable()
+                    ->sortable(),
+
+                Tables\Columns\TextColumn::make('type')
+                    ->label(__('Type'))
+                    ->badge()
+                    ->searchable()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
+
+                Tables\Columns\TextColumn::make('assignee.name')
+                    ->label(__('Assignee'))
+                    ->searchable()
+                    ->sortable()
+                    ->placeholder('Unassigned')
+                    ->toggleable(),
+
+                Tables\Columns\TextColumn::make('created_at')
+                    ->label(__('Created'))
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(),
+
                 Tables\Columns\TextColumn::make('updated_at')
-                    ->label(__('Updated at'))
+                    ->label(__('Last Updated'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
@@ -121,6 +172,30 @@ class TicketResource extends Resource
                 SelectFilter::make('status')
                     ->label(__('Status'))
                     ->options(TicketStatus::class)
+                    ->searchable()
+                    ->preload(),
+
+                SelectFilter::make('priority')
+                    ->label(__('Priority'))
+                    ->options(TicketPriority::class)
+                    ->searchable()
+                    ->preload(),
+
+                SelectFilter::make('type')
+                    ->label(__('Type'))
+                    ->options(TicketType::class)
+                    ->searchable()
+                    ->preload(),
+
+                SelectFilter::make('building_id')
+                    ->label(__('Building'))
+                    ->relationship('building', 'name')
+                    ->searchable()
+                    ->preload(),
+
+                SelectFilter::make('category_id')
+                    ->label(__('Category'))
+                    ->relationship('category', 'name')
                     ->searchable()
                     ->preload(),
             ])

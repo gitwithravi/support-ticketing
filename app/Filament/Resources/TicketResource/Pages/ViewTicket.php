@@ -1,20 +1,21 @@
 <?php
 
-namespace App\Filament\Client\Resources\TicketResource\Pages;
+namespace App\Filament\Resources\TicketResource\Pages;
 
-use App\Actions\Tickets\UpdateTicketStatus;
 use App\Enums\Tickets\TicketStatus;
-use App\Filament\Client\Resources\TicketResource;
 use App\Filament\Forms\Components\TicketComments;
+use App\Filament\Resources\TicketResource;
 use App\Models\Ticket;
-use Filament\Actions\Action;
+use Filament\Actions;
 use Filament\Forms\Components\Group;
 use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Section;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Form;
 use Filament\Resources\Pages\ViewRecord;
 use Illuminate\Contracts\Support\Htmlable;
+use Illuminate\Support\HtmlString;
 
 class ViewTicket extends ViewRecord
 {
@@ -22,7 +23,7 @@ class ViewTicket extends ViewRecord
 
     public function getTitle(): string|Htmlable
     {
-        return $this->getRecordTitle();
+        return "Ticket #{$this->getRecord()->ticket_id}";
     }
 
     public function form(Form $form): Form
@@ -90,7 +91,7 @@ class ViewTicket extends ViewRecord
                                     ->content(fn (Ticket $record): string => $record->requester?->unique_id ?? '-'),
                             ]),
 
-                        Section::make('Status & Details')
+                        Section::make('Assignment & Details')
                             ->schema([
                                 Placeholder::make('status')
                                     ->label('Status')
@@ -132,13 +133,64 @@ class ViewTicket extends ViewRecord
                                     ->content(fn (Ticket $record): string => $record->updated_at?->diffForHumans() ?? '-'),
                             ]),
 
-                        Section::make('Additional Information')
+                        Section::make('Status Information')
                             ->schema([
+                                Placeholder::make('user_status')
+                                    ->label('User Status')
+                                    ->content(function (Ticket $record) {
+                                        if (!$record->user_status) {
+                                            return new HtmlString('<span class="inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10">-</span>');
+                                        }
+                                        $color = $record->user_status->getColor();
+                                        $label = $record->user_status->getLabel();
+                                        $colorClasses = match($color) {
+                                            'warning' => 'bg-yellow-50 text-yellow-800 ring-yellow-600/20',
+                                            'success' => 'bg-green-50 text-green-800 ring-green-600/20',
+                                            'danger' => 'bg-red-50 text-red-800 ring-red-600/20',
+                                            default => 'bg-gray-50 text-gray-800 ring-gray-600/20',
+                                        };
+                                        return new HtmlString("<span class=\"inline-flex items-center rounded-md {$colorClasses} px-2 py-1 text-xs font-medium ring-1 ring-inset\">{$label}</span>");
+                                    }),
+
+                                Placeholder::make('cat_supervisor_status')
+                                    ->label('Category Supervisory Status')
+                                    ->content(function (Ticket $record) {
+                                        if (!$record->cat_supervisor_status) {
+                                            return new HtmlString('<span class="inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10">-</span>');
+                                        }
+                                        $color = $record->cat_supervisor_status->getColor();
+                                        $label = $record->cat_supervisor_status->getLabel();
+                                        $colorClasses = match($color) {
+                                            'warning' => 'bg-yellow-50 text-yellow-800 ring-yellow-600/20',
+                                            'success' => 'bg-green-50 text-green-800 ring-green-600/20',
+                                            'danger' => 'bg-red-50 text-red-800 ring-red-600/20',
+                                            default => 'bg-gray-50 text-gray-800 ring-gray-600/20',
+                                        };
+                                        return new HtmlString("<span class=\"inline-flex items-center rounded-md {$colorClasses} px-2 py-1 text-xs font-medium ring-1 ring-inset\">{$label}</span>");
+                                    }),
+
+                                Placeholder::make('build_supervisor_status')
+                                    ->label('Building Supervisory Status')
+                                    ->content(function (Ticket $record) {
+                                        if (!$record->build_supervisor_status) {
+                                            return new HtmlString('<span class="inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10">-</span>');
+                                        }
+                                        $color = $record->build_supervisor_status->getColor();
+                                        $label = $record->build_supervisor_status->getLabel();
+                                        $colorClasses = match($color) {
+                                            'warning' => 'bg-yellow-50 text-yellow-800 ring-yellow-600/20',
+                                            'success' => 'bg-green-50 text-green-800 ring-green-600/20',
+                                            'danger' => 'bg-red-50 text-red-800 ring-red-600/20',
+                                            default => 'bg-gray-50 text-gray-800 ring-gray-600/20',
+                                        };
+                                        return new HtmlString("<span class=\"inline-flex items-center rounded-md {$colorClasses} px-2 py-1 text-xs font-medium ring-1 ring-inset\">{$label}</span>");
+                                    }),
+
                                 Placeholder::make('is_escalated')
                                     ->label('Escalated')
                                     ->content(fn (Ticket $record): string => $record->is_escalated ? 'Yes' : 'No'),
                             ])
-                            ->hidden(fn (Ticket $record): bool => !$record->is_escalated),
+                            ->hidden(fn (Ticket $record): bool => !$record->user_status && !$record->cat_supervisor_status && !$record->build_supervisor_status && !$record->is_escalated),
                     ])
                     ->columnSpan(['lg' => 1]),
             ])
@@ -148,21 +200,31 @@ class ViewTicket extends ViewRecord
     protected function getHeaderActions(): array
     {
         return [
-            Action::make('closeTicket')
-                ->label(__('Close ticket'))
-                ->icon('heroicon-o-check-circle')
-                ->requiresConfirmation()
-                ->modalDescription(__('Are you sure you would like to do this? Once the ticket is closed, it cannot be reopened.'))
-                ->action(function (Ticket $record) {
-                    app(UpdateTicketStatus::class)->handle(
-                        $record,
-                        TicketStatus::CLOSED,
-                        ['reason' => 'The ticket was closed by requester.'],
-                    );
-
-                    $this->dispatch('ticket-closed');
+            Actions\Action::make('changeStatus')
+                ->label('Change Status')
+                ->icon('heroicon-o-arrow-path')
+                ->color('warning')
+                ->form([
+                    Select::make('status')
+                        ->label('New Status')
+                        ->options(TicketStatus::class)
+                        ->default(fn (Ticket $record) => $record->status)
+                        ->required()
+                        ->native(false),
+                ])
+                ->action(function (array $data, Ticket $record): void {
+                    $record->update(['status' => $data['status']]);
+                    
+                    $this->refreshFormData([
+                        'status'
+                    ]);
                 })
-                ->hidden(fn (Ticket $record): bool => $record->status === TicketStatus::CLOSED),
+                ->modalHeading('Change Ticket Status')
+                ->modalDescription('Select a new status for this ticket.')
+                ->modalSubmitActionLabel('Update Status'),
+
+            Actions\EditAction::make()
+                ->label('Edit Ticket'),
         ];
     }
 }
