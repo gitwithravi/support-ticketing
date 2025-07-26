@@ -36,6 +36,7 @@ class Ticket extends Model
         'group_id',
         'category_id',
         'sub_category_id',
+        'building_id',
         'duplicate_of_ticket_id',
         'subject',
         'priority',
@@ -107,6 +108,16 @@ class Ticket extends Model
     public function subCategory()
     {
         return $this->belongsTo(SubCategory::class);
+    }
+
+    /**
+     * The building that the ticket is related to.
+     *
+     * @return BelongsTo
+     */
+    public function building()
+    {
+        return $this->belongsTo(Building::class);
     }
 
     /**
