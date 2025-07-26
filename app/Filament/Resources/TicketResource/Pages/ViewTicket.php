@@ -3,6 +3,8 @@
 namespace App\Filament\Resources\TicketResource\Pages;
 
 use App\Enums\Tickets\TicketStatus;
+use App\Enums\Tickets\TicketUserStatus;
+use App\Enums\Users\UserType;
 use App\Filament\Forms\Components\TicketComments;
 use App\Filament\Resources\TicketResource;
 use App\Models\Ticket;
@@ -199,7 +201,10 @@ class ViewTicket extends ViewRecord
 
     protected function getHeaderActions(): array
     {
-        return [
+        $currentUser = auth()->user();
+        $record = $this->getRecord();
+        
+        $actions = [
             Actions\Action::make('changeStatus')
                 ->label('Change Status')
                 ->icon('heroicon-o-arrow-path')
@@ -222,9 +227,60 @@ class ViewTicket extends ViewRecord
                 ->modalHeading('Change Ticket Status')
                 ->modalDescription('Select a new status for this ticket.')
                 ->modalSubmitActionLabel('Update Status'),
-
-            Actions\EditAction::make()
-                ->label('Edit Ticket'),
         ];
+
+        // Add supervisor close ticket action
+        if ($currentUser && $currentUser->user_type && 
+            in_array($currentUser->user_type, [UserType::CATEGORY_SUPERVISOR, UserType::BUILDING_SUPERVISOR])) {
+            
+            $isCategorySupervisor = $currentUser->user_type === UserType::CATEGORY_SUPERVISOR;
+            $isBuildingSupervisor = $currentUser->user_type === UserType::BUILDING_SUPERVISOR;
+            
+            // Check if action can be performed
+            $canPerformAction = $record->status === TicketStatus::CLOSED && 
+                (($isCategorySupervisor && $record->cat_supervisor_status !== TicketUserStatus::CLOSE) ||
+                 ($isBuildingSupervisor && $record->build_supervisor_status !== TicketUserStatus::CLOSE));
+            
+            $actions[] = Actions\Action::make('supervisorClose')
+                ->label($isCategorySupervisor ? 'Close as Category Supervisor' : 'Close as Building Supervisor')
+                ->icon('heroicon-o-check-circle')
+                ->color('success')
+                ->requiresConfirmation()
+                ->modalHeading($isCategorySupervisor ? 'Category Supervisor Closure' : 'Building Supervisor Closure')
+                ->modalDescription('Are you sure you want to mark this ticket as closed from your supervisory perspective? This action confirms the ticket resolution.')
+                ->modalSubmitActionLabel('Confirm Closure')
+                ->action(function (Ticket $record) use ($isCategorySupervisor): void {
+                    if ($isCategorySupervisor) {
+                        $record->update(['cat_supervisor_status' => TicketUserStatus::CLOSE]);
+                    } else {
+                        $record->update(['build_supervisor_status' => TicketUserStatus::CLOSE]);
+                    }
+                    
+                    $this->refreshFormData([
+                        'cat_supervisor_status',
+                        'build_supervisor_status'
+                    ]);
+                })
+                ->disabled(!$canPerformAction)
+                ->tooltip(function () use ($record, $canPerformAction, $isCategorySupervisor): ?string {
+                    if (!$canPerformAction) {
+                        if ($record->status !== TicketStatus::CLOSED) {
+                            return 'Ticket must be closed first before supervisor action';
+                        }
+                        if ($isCategorySupervisor && $record->cat_supervisor_status === TicketUserStatus::CLOSE) {
+                            return 'Category supervisor closure already completed';
+                        }
+                        if (!$isCategorySupervisor && $record->build_supervisor_status === TicketUserStatus::CLOSE) {
+                            return 'Building supervisor closure already completed';
+                        }
+                    }
+                    return null;
+                });
+        }
+
+        $actions[] = Actions\EditAction::make()
+            ->label('Edit Ticket');
+
+        return $actions;
     }
 }

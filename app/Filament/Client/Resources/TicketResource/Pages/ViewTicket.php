@@ -4,6 +4,7 @@ namespace App\Filament\Client\Resources\TicketResource\Pages;
 
 use App\Actions\Tickets\UpdateTicketStatus;
 use App\Enums\Tickets\TicketStatus;
+use App\Enums\Tickets\TicketUserStatus;
 use App\Filament\Client\Resources\TicketResource;
 use App\Filament\Forms\Components\TicketComments;
 use App\Models\Ticket;
@@ -159,6 +160,9 @@ class ViewTicket extends ViewRecord
                         TicketStatus::CLOSED,
                         ['reason' => 'The ticket was closed by requester.'],
                     );
+
+                    // Set user_status to CLOSE when closed by client
+                    $record->update(['user_status' => TicketUserStatus::CLOSE]);
 
                     $this->dispatch('ticket-closed');
                 })
