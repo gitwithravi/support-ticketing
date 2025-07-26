@@ -42,6 +42,15 @@ class ClientResource extends Resource
                                             ->label(__('Name'))
                                             ->required()
                                             ->maxLength(255),
+                                        
+                                        Forms\Components\TextInput::make('unique_id')
+                                            ->label(__('Registration/Employee ID'))
+                                            ->required()
+                                            ->unique(ignoreRecord: true)
+                                            ->maxLength(255)
+                                            ->placeholder('e.g., REG2024001, EMP001')
+                                            ->helperText(__('Unique registration number or employee ID')),
+                                        
                                         Forms\Components\Select::make('groups')
                                             ->relationship(name: 'groups', titleAttribute: 'name')
                                             ->multiple()
@@ -119,18 +128,30 @@ class ClientResource extends Resource
                     ->label(__('Name'))
                     ->view('filament.tables.columns.avatar-name')
                     ->searchable(),
+                
+                Tables\Columns\TextColumn::make('unique_id')
+                    ->label(__('ID'))
+                    ->searchable()
+                    ->sortable()
+                    ->badge()
+                    ->color('primary'),
+                
                 Tables\Columns\TextColumn::make('email')
                     ->label(__('Email'))
                     ->searchable(),
+                    
                 Tables\Columns\TextColumn::make('phone')
                     ->label(__('Phone'))
                     ->searchable(),
+                    
                 SpatieTagsColumn::make('tags'),
+                
                 Tables\Columns\TextColumn::make('created_at')
                     ->label(__('Created at'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
+                    
                 Tables\Columns\TextColumn::make('updated_at')
                     ->label(__('Updated at'))
                     ->dateTime()
