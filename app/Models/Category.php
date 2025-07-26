@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Category extends Model
@@ -23,6 +24,7 @@ class Category extends Model
         'icon',
         'is_active',
         'sort_order',
+        'category_supervisor_id',
     ];
 
     /**
@@ -52,6 +54,14 @@ class Category extends Model
     public function tickets(): HasMany
     {
         return $this->hasMany(Ticket::class);
+    }
+
+    /**
+     * A category belongs to a supervisor (user).
+     */
+    public function supervisor(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'category_supervisor_id');
     }
 
     /**
