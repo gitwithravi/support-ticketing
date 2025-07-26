@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Enums\Tickets\TicketPriority;
 use App\Enums\Tickets\TicketStatus;
 use App\Enums\Tickets\TicketType;
+use App\Enums\Tickets\TicketUserStatus;
 use App\Models\Scopes\ClientScope;
 use App\Models\Scopes\GroupScope;
 use App\Observers\TicketObserver;
@@ -43,6 +44,13 @@ class Ticket extends Model
         'type',
         'status',
         'is_escalated',
+        'room_no',
+        'ticket_description',
+        'user_status',
+        'cat_supervisor_status',
+        'build_supervisor_status',
+        'verified_by',
+        'ticket_closing_date',
     ];
 
     /**
@@ -57,6 +65,10 @@ class Ticket extends Model
             'type' => TicketType::class,
             'status' => TicketStatus::class,
             'is_escalated' => 'boolean',
+            'user_status' => TicketUserStatus::class,
+            'cat_supervisor_status' => TicketUserStatus::class,
+            'build_supervisor_status' => TicketUserStatus::class,
+            'ticket_closing_date' => 'datetime',
         ];
     }
 
@@ -169,6 +181,16 @@ class Ticket extends Model
     public function duplicateOf()
     {
         return $this->belongsTo(Ticket::class, 'duplicate_of_ticket_id', 'id');
+    }
+
+    /**
+     * The user who verified/closed the ticket.
+     *
+     * @return BelongsTo
+     */
+    public function verifiedBy()
+    {
+        return $this->belongsTo(User::class, 'verified_by');
     }
 
     /**
