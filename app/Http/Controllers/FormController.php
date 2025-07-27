@@ -64,9 +64,7 @@ class FormController extends Controller
      */
     public function activate($locale, Form $form)
     {
-        if (auth()->check() && ! auth()->user()->hasPermissionTo('hc-forms')) {
-            abort(403);
-        }
+        // Permission check will be handled by Filament Shield
 
         $form->update(['is_active' => true]);
 
@@ -80,9 +78,7 @@ class FormController extends Controller
      */
     public function deactivate($locale, Form $form)
     {
-        if (auth()->check() && ! auth()->user()->hasPermissionTo('hc-forms')) {
-            abort(403);
-        }
+        // Permission check will be handled by Filament Shield
 
         $form->update(['is_active' => false]);
 

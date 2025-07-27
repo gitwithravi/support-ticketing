@@ -11,6 +11,6 @@ class FormPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->hasPermissionTo('hc-forms');
+        return true;
     }
 }

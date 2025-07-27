@@ -11,6 +11,6 @@ class ArticlePolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->hasPermissionTo('hc-articles');
+        return true;
     }
 }

@@ -29,9 +29,7 @@ class ArticleController extends Controller
      */
     public function publish($locale, Article $article)
     {
-        if (auth()->check() && ! auth()->user()->hasPermissionTo('hc-articles')) {
-            abort(403);
-        }
+        // Permission check will be handled by Filament Shield
 
         $article->update(['status' => ArticleStatus::PUBLISHED]);
 
@@ -45,9 +43,7 @@ class ArticleController extends Controller
      */
     public function unpublish($locale, Article $article)
     {
-        if (auth()->check() && ! auth()->user()->hasPermissionTo('hc-articles')) {
-            abort(403);
-        }
+        // Permission check will be handled by Filament Shield
 
         $article->update(['status' => ArticleStatus::DRAFT]);
 

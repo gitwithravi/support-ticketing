@@ -12,10 +12,6 @@ class TicketPolicy
      */
     public function viewAny(User|Client $user): bool
     {
-        if ($user instanceof User) {
-            return $user->hasPermissionTo('tickets');
-        }
-
         return true;
     }
 }

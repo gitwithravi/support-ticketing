@@ -4,7 +4,6 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use App\Enums\Users\UserType;
-use App\Traits\HasPermissions;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -16,7 +15,7 @@ use Spatie\WelcomeNotification\ReceivesWelcomeNotification;
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasApiTokens, HasFactory, HasPermissions, HasUlids, Notifiable, ReceivesWelcomeNotification;
+    use HasApiTokens, HasFactory, HasUlids, Notifiable, ReceivesWelcomeNotification;
 
     /**
      * The attributes that are mass assignable.

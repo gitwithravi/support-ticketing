@@ -14,10 +14,7 @@ class GroupScope implements Scope
      */
     public function apply(Builder $builder, Model $model): void
     {
-        if ($model instanceof User) {
-            if (auth()->check() && ! auth()->user()->hasPermissionTo('settings')) {
-                $builder->whereIn('group_id', auth()->user()->groups()->pluck('id')->toArray());
-            }
-        }
+        // Group scope logic will be handled by Filament Shield
+        // Temporarily disabled until Shield is implemented
     }
 }

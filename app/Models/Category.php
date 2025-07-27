@@ -57,6 +57,14 @@ class Category extends Model
     }
 
     /**
+     * A category has many groups.
+     */
+    public function groups(): HasMany
+    {
+        return $this->hasMany(Group::class);
+    }
+
+    /**
      * A category belongs to a supervisor (user).
      */
     public function supervisor(): BelongsTo

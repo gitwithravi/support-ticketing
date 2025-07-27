@@ -9,7 +9,7 @@
         {{ __('Share Form') }}
     </a>
 
-    @if(auth()->check() && auth()->user()->hasPermissionTo('hc-forms'))
+    @if(auth()->check())
         <!-- Edit Form -->
         <a
             href="{{ route('filament.app.help-center.resources.forms.edit', $form) }}"

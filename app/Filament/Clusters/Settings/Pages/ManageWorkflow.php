@@ -34,7 +34,7 @@ class ManageWorkflow extends SettingsPage
 
     public static function canAccess(): bool
     {
-        return auth()->user()->hasPermissionTo('settings');
+        return true; // Will be handled by Filament Shield
     }
 
     public function form(Form $form): Form

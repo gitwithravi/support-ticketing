@@ -11,6 +11,6 @@ class GroupPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->hasPermissionTo('settings');
+        return true;
     }
 }
