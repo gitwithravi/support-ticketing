@@ -73,72 +73,11 @@ class ViewTicket extends ViewRecord
                             ->columns(2),
 
                         TicketComments::make(),
-                    ])
-                    ->columnSpan(['lg' => 2]),
-
-                Group::make()
-                    ->schema([
-                        Section::make('Requester Information')
-                            ->schema([
-                                Placeholder::make('requester_name')
-                                    ->label('Name')
-                                    ->content(fn (Ticket $record): string => $record->requester?->name ?? '-'),
-
-                                Placeholder::make('requester_email')
-                                    ->label('Email')
-                                    ->content(fn (Ticket $record): string => $record->requester?->email ?? '-'),
-
-                                Placeholder::make('requester_unique_id')
-                                    ->label('Employee/Registration ID')
-                                    ->content(fn (Ticket $record): string => $record->requester?->unique_id ?? '-'),
-                            ]),
-
-                        Section::make('Assignment & Details')
-                            ->schema([
-                                Placeholder::make('status')
-                                    ->label('Status')
-                                    ->content(fn (Ticket $record): string => $record->status->getLabel()),
-
-                                Placeholder::make('priority')
-                                    ->label('Priority')
-                                    ->content(fn (Ticket $record): string => $record->priority->getLabel()),
-
-                                Placeholder::make('type')
-                                    ->label('Type')
-                                    ->content(fn (Ticket $record): string => $record->type->getLabel()),
-
-                                Placeholder::make('assignee')
-                                    ->label('Assignee')
-                                    ->content(fn (Ticket $record): string => $record->assignee?->name ?? 'Unassigned'),
-
-                                Placeholder::make('group')
-                                    ->label('Group')
-                                    ->content(fn (Ticket $record): string => $record->group?->name ?? '-'),
-                            ]),
-
-                        Section::make('Dates & Timeline')
-                            ->schema([
-                                Placeholder::make('created_at')
-                                    ->label('Created')
-                                    ->content(fn (Ticket $record): string => $record->created_at?->format('M j, Y g:i A') ?? '-'),
-
-                                Placeholder::make('updated_at')
-                                    ->label('Last Updated')
-                                    ->content(fn (Ticket $record): string => $record->updated_at?->format('M j, Y g:i A') ?? '-'),
-
-                                Placeholder::make('created_relative')
-                                    ->label('Created (Relative)')
-                                    ->content(fn (Ticket $record): string => $record->created_at?->diffForHumans() ?? '-'),
-
-                                Placeholder::make('updated_relative')
-                                    ->label('Updated (Relative)')
-                                    ->content(fn (Ticket $record): string => $record->updated_at?->diffForHumans() ?? '-'),
-                            ]),
-
-                        Section::make('Status Information')
+                         Section::make('Status Information')
                             ->schema([
                                 Placeholder::make('user_status')
                                     ->label('User Status')
+                                    //->inlineLabel()
                                     ->content(function (Ticket $record) {
                                         if (!$record->user_status) {
                                             return new HtmlString('<span class="inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10">-</span>');
@@ -156,6 +95,7 @@ class ViewTicket extends ViewRecord
 
                                 Placeholder::make('cat_supervisor_status')
                                     ->label('Category Supervisory Status')
+                                    //->inlineLabel()
                                     ->content(function (Ticket $record) {
                                         if (!$record->cat_supervisor_status) {
                                             return new HtmlString('<span class="inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10">-</span>');
@@ -173,6 +113,7 @@ class ViewTicket extends ViewRecord
 
                                 Placeholder::make('build_supervisor_status')
                                     ->label('Building Supervisory Status')
+                                    //->inlineLabel()
                                     ->content(function (Ticket $record) {
                                         if (!$record->build_supervisor_status) {
                                             return new HtmlString('<span class="inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10">-</span>');
@@ -190,9 +131,78 @@ class ViewTicket extends ViewRecord
 
                                 Placeholder::make('is_escalated')
                                     ->label('Escalated')
+                                    //->inlineLabel()
                                     ->content(fn (Ticket $record): string => $record->is_escalated ? 'Yes' : 'No'),
                             ])
+                            ->columns(2)
                             ->hidden(fn (Ticket $record): bool => !$record->user_status && !$record->cat_supervisor_status && !$record->build_supervisor_status && !$record->is_escalated),
+                    ])
+                    ->columnSpan(['lg' => 2]),
+
+                Group::make()
+                    ->schema([
+                        Section::make('Requester Information')
+                            ->schema([
+                                Placeholder::make('requester_name')
+                                    ->label('Name')
+                                    ->inlineLabel()
+                                    ->content(fn (Ticket $record): string => $record->requester?->name ?? '-'),
+
+                                Placeholder::make('requester_email')
+                                    ->label('Email')
+                                    ->inlineLabel()
+                                    ->content(fn (Ticket $record): string => $record->requester?->email ?? '-'),
+
+                                Placeholder::make('requester_unique_id')
+                                    ->label('Employee/Registration ID')
+                                    ->inlineLabel()
+                                    ->content(fn (Ticket $record): string => $record->requester?->unique_id ?? '-'),
+                            ]),
+
+                        Section::make('Assignment & Details')
+                            ->schema([
+                                Placeholder::make('status')
+                                    ->label('Status')
+                                    ->inlineLabel()
+                                    ->content(fn (Ticket $record): string => $record->status->getLabel()),
+
+                                Placeholder::make('priority')
+                                    ->label('Priority')
+                                    ->inlineLabel()
+                                    ->content(fn (Ticket $record): string => $record->priority->getLabel()),
+
+                                Placeholder::make('type')
+                                    ->label('Type')
+                                    ->inlineLabel()
+                                    ->content(fn (Ticket $record): string => $record->type->getLabel()),
+
+                                Placeholder::make('assignee')
+                                    ->label('Assignee')
+                                    ->inlineLabel()
+                                    ->content(fn (Ticket $record): string => $record->assignee?->name ?? 'Unassigned'),
+
+                                // Placeholder::make('group')
+                                //     ->label('Group')
+                                //     ->inlineLabel()
+                                //     ->content(fn (Ticket $record): string => $record->group?->name ?? '-'),
+                            ]),
+
+                        Section::make('Dates & Timeline')
+                            ->schema([
+                                Placeholder::make('created_at')
+                                    ->label('Created')
+                                    ->inlineLabel()
+                                    ->content(fn (Ticket $record): string => $record->created_at?->format('M j, Y g:i A') ?? '-'),
+
+                                Placeholder::make('updated_at')
+                                    ->label('Last Updated')
+                                    ->inlineLabel()
+                                    ->content(fn (Ticket $record): string => $record->updated_at?->format('M j, Y g:i A') ?? '-'),
+
+                              
+                            ]),
+
+                       
                     ])
                     ->columnSpan(['lg' => 1]),
             ])
