@@ -3,6 +3,7 @@
 namespace App\Observers;
 
 use App\Actions\Tickets\CreateTicketSlas;
+use App\Enums\Tickets\TicketStatus;
 use App\Models\Ticket;
 use App\Notifications\TicketCreated;
 use App\Settings\AdvancedSettings;
@@ -45,6 +46,11 @@ class TicketObserver
     {
         if ($ticket->isDirty('group_id')) {
             app(CreateTicketSlas::class)->handle($ticket);
+        }
+
+        if ($ticket->isDirty('status') && $ticket->status === TicketStatus::CLOSED) {
+            $ticket->ticket_closing_date = now();
+            $ticket->saveQuietly();
         }
     }
 
