@@ -5,7 +5,6 @@ namespace App\Filament\Resources;
 use App\Enums\Tickets\TicketPriority;
 use App\Enums\Tickets\TicketStatus;
 use App\Enums\Tickets\TicketType;
-use App\Enums\Tickets\TicketUserStatus;
 use App\Filament\Forms\Components\TicketComments;
 use App\Filament\Resources\TicketResource\Pages;
 use App\Filament\Resources\TicketResource\Pages\EditTicket;
@@ -14,17 +13,19 @@ use App\Models\Building;
 use App\Models\Category;
 use App\Models\SubCategory;
 use App\Models\Ticket;
+use App\Models\User;
 use Filament\Forms;
 use Filament\Forms\Components\Livewire;
 use Filament\Forms\Components\View;
-use Illuminate\Support\HtmlString;
 use Filament\Forms\Form;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\HtmlString;
 
 class TicketResource extends Resource
 {
@@ -103,14 +104,15 @@ class TicketResource extends Resource
                                             ->label(__('Sub Category'))
                                             ->options(function (Forms\Get $get) {
                                                 $categoryId = $get('category_id');
-                                                if (!$categoryId) {
+                                                if (! $categoryId) {
                                                     return [];
                                                 }
+
                                                 return SubCategory::where('category_id', $categoryId)->pluck('name', 'id');
                                             })
                                             ->searchable()
                                             ->preload()
-                                            ->disabled(fn (Forms\Get $get) => !$get('category_id')),
+                                            ->disabled(fn (Forms\Get $get) => ! $get('category_id')),
                                     ])->columns(2),
                             ]),
                         Livewire::make(FieldsRelationManager::class, fn (Ticket $record, EditTicket $livewire): array => [
@@ -141,7 +143,29 @@ class TicketResource extends Resource
                                     ->helperText(__('The client who requested the ticket.')),
                                 Forms\Components\Select::make('assignee_id')
                                     ->label(__('Assignee'))
-                                    ->relationship(name: 'assignee', titleAttribute: 'name')
+                                    ->relationship(
+                                        name: 'assignee',
+                                        titleAttribute: 'name',
+                                        modifyQueryUsing: function (Builder $query) {
+                                            $currentUser = auth()->user();
+
+                                            // If current user is a category supervisor, filter assignees
+                                            if ($currentUser && $currentUser->isCategorySupervisor()) {
+                                                // Get categories supervised by the current user
+                                                $supervisedCategoryIds = $currentUser->supervisedCategories()->pluck('id');
+
+                                                // Get groups associated with those categories
+                                                $groupIds = \App\Models\Group::whereIn('category_id', $supervisedCategoryIds)->pluck('id');
+
+                                                // Filter users who belong to those groups
+                                                $query->whereHas('groups', function ($groupQuery) use ($groupIds) {
+                                                    $groupQuery->whereIn('groups.id', $groupIds);
+                                                });
+                                            }
+
+                                            return $query;
+                                        }
+                                    )
                                     ->searchable()
                                     ->preload()
                                     ->helperText(__('The agent assigned to the ticket.')),
@@ -165,51 +189,54 @@ class TicketResource extends Resource
                                 Forms\Components\Placeholder::make('user_status')
                                     ->label(__('User Status'))
                                     ->content(function (Ticket $record) {
-                                        if (!$record->user_status) {
+                                        if (! $record->user_status) {
                                             return new HtmlString('<span class="inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10">-</span>');
                                         }
                                         $color = $record->user_status->getColor();
                                         $label = $record->user_status->getLabel();
-                                        $colorClasses = match($color) {
+                                        $colorClasses = match ($color) {
                                             'warning' => 'bg-yellow-50 text-yellow-800 ring-yellow-600/20',
                                             'success' => 'bg-green-50 text-green-800 ring-green-600/20',
                                             'danger' => 'bg-red-50 text-red-800 ring-red-600/20',
                                             default => 'bg-gray-50 text-gray-800 ring-gray-600/20',
                                         };
+
                                         return new HtmlString("<span class=\"inline-flex items-center rounded-md {$colorClasses} px-2 py-1 text-xs font-medium ring-1 ring-inset\">{$label}</span>");
                                     }),
 
                                 Forms\Components\Placeholder::make('cat_supervisor_status')
                                     ->label(__('Category Supervisory Status'))
                                     ->content(function (Ticket $record) {
-                                        if (!$record->cat_supervisor_status) {
+                                        if (! $record->cat_supervisor_status) {
                                             return new HtmlString('<span class="inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10">-</span>');
                                         }
                                         $color = $record->cat_supervisor_status->getColor();
                                         $label = $record->cat_supervisor_status->getLabel();
-                                        $colorClasses = match($color) {
+                                        $colorClasses = match ($color) {
                                             'warning' => 'bg-yellow-50 text-yellow-800 ring-yellow-600/20',
                                             'success' => 'bg-green-50 text-green-800 ring-green-600/20',
                                             'danger' => 'bg-red-50 text-red-800 ring-red-600/20',
                                             default => 'bg-gray-50 text-gray-800 ring-gray-600/20',
                                         };
+
                                         return new HtmlString("<span class=\"inline-flex items-center rounded-md {$colorClasses} px-2 py-1 text-xs font-medium ring-1 ring-inset\">{$label}</span>");
                                     }),
 
                                 Forms\Components\Placeholder::make('build_supervisor_status')
                                     ->label(__('Building Supervisory Status'))
                                     ->content(function (Ticket $record) {
-                                        if (!$record->build_supervisor_status) {
+                                        if (! $record->build_supervisor_status) {
                                             return new HtmlString('<span class="inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10">-</span>');
                                         }
                                         $color = $record->build_supervisor_status->getColor();
                                         $label = $record->build_supervisor_status->getLabel();
-                                        $colorClasses = match($color) {
+                                        $colorClasses = match ($color) {
                                             'warning' => 'bg-yellow-50 text-yellow-800 ring-yellow-600/20',
                                             'success' => 'bg-green-50 text-green-800 ring-green-600/20',
                                             'danger' => 'bg-red-50 text-red-800 ring-red-600/20',
                                             default => 'bg-gray-50 text-gray-800 ring-gray-600/20',
                                         };
+
                                         return new HtmlString("<span class=\"inline-flex items-center rounded-md {$colorClasses} px-2 py-1 text-xs font-medium ring-1 ring-inset\">{$label}</span>");
                                     }),
                             ])->hiddenOn(['create']),
@@ -229,13 +256,14 @@ class TicketResource extends Resource
                     ->copyMessageDuration(1500)
                     ->searchable()
                     ->sortable(),
-                    
+
                 Tables\Columns\TextColumn::make('subject')
                     ->label(__('Subject'))
                     ->searchable()
                     ->limit(50)
                     ->tooltip(function (Tables\Columns\TextColumn $column): ?string {
                         $state = $column->getState();
+
                         return strlen($state) > 50 ? $state : null;
                     }),
 
@@ -360,10 +388,94 @@ class TicketResource extends Resource
             ->actions([
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\Action::make('assign_user')
+                    ->label(__('Assign User'))
+                    ->icon('heroicon-o-user-plus')
+                    ->color('primary')
+                    ->form([
+                        Forms\Components\Select::make('assignee_id')
+                            ->label(__('Assignee'))
+                            ->options(function () {
+                                $currentUser = auth()->user();
+
+                                // If current user is a category supervisor, filter assignees
+                                if ($currentUser && $currentUser->isCategorySupervisor()) {
+                                    // Get categories supervised by the current user
+                                    $supervisedCategoryIds = $currentUser->supervisedCategories()->pluck('id');
+
+                                    // Get groups associated with those categories
+                                    $groupIds = \App\Models\Group::whereIn('category_id', $supervisedCategoryIds)->pluck('id');
+
+                                    // Get users who belong to those groups
+                                    return User::whereHas('groups', function ($groupQuery) use ($groupIds) {
+                                        $groupQuery->whereIn('groups.id', $groupIds);
+                                    })->pluck('name', 'id');
+                                }
+
+                                return User::pluck('name', 'id');
+                            })
+                            ->searchable()
+                            ->preload()
+                            ->placeholder(__('Select an assignee'))
+                            ->required(),
+                    ])
+                    ->action(function (Ticket $record, array $data) {
+                        $record->update(['assignee_id' => $data['assignee_id']]);
+
+                        Notification::make()
+                            ->title(__('Ticket assigned successfully'))
+                            ->success()
+                            ->send();
+                    })
+                    ->visible(fn () => auth()->user()?->isCategorySupervisor() ?? false),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\BulkAction::make('bulk_assign_user')
+                        ->label(__('Assign User'))
+                        ->icon('heroicon-o-user-plus')
+                        ->color('primary')
+                        ->form([
+                            Forms\Components\Select::make('assignee_id')
+                                ->label(__('Assignee'))
+                                ->options(function () {
+                                    $currentUser = auth()->user();
+
+                                    // If current user is a category supervisor, filter assignees
+                                    if ($currentUser && $currentUser->isCategorySupervisor()) {
+                                        // Get categories supervised by the current user
+                                        $supervisedCategoryIds = $currentUser->supervisedCategories()->pluck('id');
+
+                                        // Get groups associated with those categories
+                                        $groupIds = \App\Models\Group::whereIn('category_id', $supervisedCategoryIds)->pluck('id');
+
+                                        // Get users who belong to those groups
+                                        return User::whereHas('groups', function ($groupQuery) use ($groupIds) {
+                                            $groupQuery->whereIn('groups.id', $groupIds);
+                                        })->pluck('name', 'id');
+                                    }
+
+                                    return User::pluck('name', 'id');
+                                })
+                                ->searchable()
+                                ->preload()
+                                ->placeholder(__('Select an assignee'))
+                                ->required(),
+                        ])
+                        ->action(function (array $data, $records) {
+                            $updatedCount = 0;
+                            foreach ($records as $record) {
+                                $record->update(['assignee_id' => $data['assignee_id']]);
+                                $updatedCount++;
+                            }
+
+                            Notification::make()
+                                ->title(__(':count tickets assigned successfully', ['count' => $updatedCount]))
+                                ->success()
+                                ->send();
+                        })
+                        ->visible(fn () => auth()->user()?->isCategorySupervisor() ?? false),
                 ]),
             ])
             ->defaultSort('ticket_id', 'DESC');
