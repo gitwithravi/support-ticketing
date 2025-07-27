@@ -387,7 +387,8 @@ class TicketResource extends Resource
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
+                Tables\Actions\EditAction::make()
+                    ->visible(fn () => auth()->user()?->isAdmin() ?? false),
                 Tables\Actions\Action::make('assign_user')
                     ->label(__('Assign User'))
                     ->icon('heroicon-o-user-plus')
@@ -479,6 +480,25 @@ class TicketResource extends Resource
                 ]),
             ])
             ->defaultSort('ticket_id', 'DESC');
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        $query = parent::getEloquentQuery();
+        $currentUser = auth()->user();
+
+        // Filter tickets based on user type
+        if ($currentUser) {
+            if ($currentUser->isBuildingSupervisor()) {
+                // Building supervisors see only tickets from buildings they supervise
+                $supervisedBuildingIds = $currentUser->supervisedBuildings()->pluck('id');
+                $query->whereIn('building_id', $supervisedBuildingIds);
+            }
+            // Note: Category supervisors will see all tickets (no additional filtering here)
+            // Other user types (admin, agent) will see all tickets
+        }
+
+        return $query;
     }
 
     public static function getRelations(): array

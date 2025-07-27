@@ -34,6 +34,15 @@ class StatsOverview extends BaseWidget
     private function getCounts(?Carbon $before = null): array
     {
         $query = Ticket::query();
+        $currentUser = auth()->user();
+
+        // Apply user-based filtering
+        if ($currentUser && $currentUser->isBuildingSupervisor()) {
+            // Building supervisors see only tickets from buildings they supervise
+            $supervisedBuildingIds = $currentUser->supervisedBuildings()->pluck('id');
+            $query->whereIn('building_id', $supervisedBuildingIds);
+        }
+        // Note: Category supervisors and other user types see all tickets
 
         if ($before) {
             $query->where('created_at', '<', $before);

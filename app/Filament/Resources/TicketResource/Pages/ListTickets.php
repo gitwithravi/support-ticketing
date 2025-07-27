@@ -88,18 +88,35 @@ class ListTickets extends ListRecords
     public function getTabs(): array
     {
         $ticketStatuses = TicketStatus::cases();
+        $currentUser = auth()->user();
+
+        // Helper function to get filtered query for current user
+        $getFilteredQuery = function () use ($currentUser) {
+            $query = Ticket::query();
+
+            if ($currentUser) {
+                if ($currentUser->isBuildingSupervisor()) {
+                    // Building supervisors see only tickets from buildings they supervise
+                    $supervisedBuildingIds = $currentUser->supervisedBuildings()->pluck('id');
+                    $query->whereIn('building_id', $supervisedBuildingIds);
+                }
+                // Note: Category supervisors and other user types see all tickets
+            }
+
+            return $query;
+        };
 
         $tabs = [
             Tab::make()
                 ->label(__('All'))
-                ->badge(Ticket::query()->count())
+                ->badge($getFilteredQuery()->count())
                 ->modifyQueryUsing(fn (Builder $query) => $query),
         ];
 
         foreach ($ticketStatuses as $ticketStatus) {
             $tabs[] = Tab::make()
                 ->label($ticketStatus->getLabel())
-                ->badge(Ticket::query()->where('status', $ticketStatus->value)->count())
+                ->badge($getFilteredQuery()->where('status', $ticketStatus->value)->count())
                 ->badgeColor($ticketStatus->getColor())
                 ->modifyQueryUsing(fn (Builder $query) => $query->where('status', $ticketStatus->value));
         }

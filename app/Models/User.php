@@ -135,10 +135,26 @@ class User extends Authenticatable
     }
 
     /**
+     * Get buildings that this user supervises
+     */
+    public function supervisedBuildings()
+    {
+        return $this->hasMany(Building::class, 'building_supervisor_id');
+    }
+
+    /**
      * Check if user is a category supervisor
      */
     public function isCategorySupervisor(): bool
     {
         return $this->user_type === UserType::CATEGORY_SUPERVISOR;
+    }
+
+    /**
+     * Check if user is a building supervisor
+     */
+    public function isBuildingSupervisor(): bool
+    {
+        return $this->user_type === UserType::BUILDING_SUPERVISOR;
     }
 }

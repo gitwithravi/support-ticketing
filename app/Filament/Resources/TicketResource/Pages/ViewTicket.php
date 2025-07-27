@@ -279,7 +279,8 @@ class ViewTicket extends ViewRecord
         }
 
         $actions[] = Actions\EditAction::make()
-            ->label('Edit Ticket');
+            ->label('Edit Ticket')
+            ->visible(fn () => auth()->user()?->isAdmin() ?? false);
 
         return $actions;
     }
