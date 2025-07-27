@@ -157,4 +157,12 @@ class User extends Authenticatable
     {
         return $this->user_type === UserType::BUILDING_SUPERVISOR;
     }
+
+    /**
+     * Check if user is an agent
+     */
+    public function isAgent(): bool
+    {
+        return $this->user_type === UserType::AGENT;
+    }
 }

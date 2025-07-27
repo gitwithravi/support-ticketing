@@ -99,8 +99,11 @@ class ListTickets extends ListRecords
                     // Building supervisors see only tickets from buildings they supervise
                     $supervisedBuildingIds = $currentUser->supervisedBuildings()->pluck('id');
                     $query->whereIn('building_id', $supervisedBuildingIds);
+                } elseif ($currentUser->isAgent()) {
+                    // Agents see only tickets assigned to them
+                    $query->where('assignee_id', $currentUser->id);
                 }
-                // Note: Category supervisors and other user types see all tickets
+                // Note: Category supervisors and admin users see all tickets
             }
 
             return $query;

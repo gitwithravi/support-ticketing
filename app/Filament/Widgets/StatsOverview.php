@@ -37,12 +37,17 @@ class StatsOverview extends BaseWidget
         $currentUser = auth()->user();
 
         // Apply user-based filtering
-        if ($currentUser && $currentUser->isBuildingSupervisor()) {
-            // Building supervisors see only tickets from buildings they supervise
-            $supervisedBuildingIds = $currentUser->supervisedBuildings()->pluck('id');
-            $query->whereIn('building_id', $supervisedBuildingIds);
+        if ($currentUser) {
+            if ($currentUser->isBuildingSupervisor()) {
+                // Building supervisors see only tickets from buildings they supervise
+                $supervisedBuildingIds = $currentUser->supervisedBuildings()->pluck('id');
+                $query->whereIn('building_id', $supervisedBuildingIds);
+            } elseif ($currentUser->isAgent()) {
+                // Agents see only tickets assigned to them
+                $query->where('assignee_id', $currentUser->id);
+            }
+            // Note: Category supervisors and admin users see all tickets
         }
-        // Note: Category supervisors and other user types see all tickets
 
         if ($before) {
             $query->where('created_at', '<', $before);
