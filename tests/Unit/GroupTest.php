@@ -7,6 +7,7 @@ test('group has correct fillable attributes', function () {
     $fillable = [
         'name',
         'description',
+        'category_id',
     ];
 
     expect((new Group())->getFillable())->toBe($fillable);

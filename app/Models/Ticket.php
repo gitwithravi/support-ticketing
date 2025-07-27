@@ -6,6 +6,7 @@ use App\Enums\Tickets\TicketPriority;
 use App\Enums\Tickets\TicketStatus;
 use App\Enums\Tickets\TicketType;
 use App\Enums\Tickets\TicketUserStatus;
+use App\Models\Scopes\CategoryScope;
 use App\Models\Scopes\ClientScope;
 use App\Models\Scopes\GroupScope;
 use App\Observers\TicketObserver;
@@ -20,7 +21,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 #[ObservedBy([TicketObserver::class])]
-#[ScopedBy([GroupScope::class, ClientScope::class])]
+#[ScopedBy([CategoryScope::class, GroupScope::class, ClientScope::class])]
 class Ticket extends Model
 {
     /** @use HasFactory<\Database\Factories\TicketFactory> */

@@ -57,13 +57,16 @@ test('sub category has many tickets', function () {
 });
 
 test('sub category active scope returns only active sub categories', function () {
-    SubCategory::factory()->create(['is_active' => true]);
+    $initialActiveCount = SubCategory::active()->count();
+    
+    $createdActive = SubCategory::factory()->create(['is_active' => true]);
     SubCategory::factory()->create(['is_active' => false]);
 
     $activeSubCategories = SubCategory::active()->get();
 
-    expect($activeSubCategories)->toHaveCount(1)
-        ->and($activeSubCategories->first()->is_active)->toBeTrue();
+    expect($activeSubCategories)->toHaveCount($initialActiveCount + 1)
+        ->and($activeSubCategories->contains('id', $createdActive->id))->toBeTrue()
+        ->and($activeSubCategories->where('id', $createdActive->id)->first()->is_active)->toBeTrue();
 });
 
 test('sub category ordered scope sorts by sort order and name', function () {

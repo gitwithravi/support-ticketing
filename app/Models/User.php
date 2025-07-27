@@ -10,13 +10,13 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
-use Spatie\WelcomeNotification\ReceivesWelcomeNotification;
 use Spatie\Permission\Traits\HasRoles;
+use Spatie\WelcomeNotification\ReceivesWelcomeNotification;
 
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasApiTokens, HasFactory, HasUlids, Notifiable, ReceivesWelcomeNotification, HasRoles;
+    use HasApiTokens, HasFactory, HasRoles, HasUlids, Notifiable, ReceivesWelcomeNotification;
 
     /**
      * The attributes that are mass assignable.
@@ -124,5 +124,21 @@ class User extends Authenticatable
             UserType::CATEGORY_SUPERVISOR->value,
             UserType::BUILDING_SUPERVISOR->value,
         ]);
+    }
+
+    /**
+     * Get categories that this user supervises
+     */
+    public function supervisedCategories()
+    {
+        return $this->hasMany(Category::class, 'category_supervisor_id');
+    }
+
+    /**
+     * Check if user is a category supervisor
+     */
+    public function isCategorySupervisor(): bool
+    {
+        return $this->user_type === UserType::CATEGORY_SUPERVISOR;
     }
 }

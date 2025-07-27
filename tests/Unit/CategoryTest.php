@@ -66,13 +66,16 @@ test('category belongs to supervisor', function () {
 });
 
 test('category active scope returns only active categories', function () {
-    Category::factory()->create(['is_active' => true]);
+    $initialActiveCount = Category::active()->count();
+    
+    $createdActive = Category::factory()->create(['is_active' => true]);
     Category::factory()->create(['is_active' => false]);
 
     $activeCategories = Category::active()->get();
 
-    expect($activeCategories)->toHaveCount(1)
-        ->and($activeCategories->first()->is_active)->toBeTrue();
+    expect($activeCategories)->toHaveCount($initialActiveCount + 1)
+        ->and($activeCategories->contains('id', $createdActive->id))->toBeTrue()
+        ->and($activeCategories->where('id', $createdActive->id)->first()->is_active)->toBeTrue();
 });
 
 test('category ordered scope sorts by sort order and name', function () {
