@@ -11,6 +11,7 @@
     "require": {
         "php": "^8.2",
         "beyondcode/laravel-mailbox": "^5.0",
+        "bezhansalleh/filament-shield": "^3.3",
         "diglactic/laravel-breadcrumbs": "^10.0",
         "filament/filament": "^3.2",
         "filament/spatie-laravel-settings-plugin": "^3.2",

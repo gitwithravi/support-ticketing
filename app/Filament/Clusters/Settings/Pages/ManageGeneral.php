@@ -34,7 +34,7 @@ class ManageGeneral extends SettingsPage
 
     public static function canAccess(): bool
     {
-        return true; // Will be handled by Filament Shield
+        return auth()->user()->can('page_ManageGeneral');
     }
 
     public function form(Form $form): Form

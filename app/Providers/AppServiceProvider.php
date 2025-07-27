@@ -4,12 +4,12 @@ namespace App\Providers;
 
 use App\Mailboxes\TicketMailbox;
 use App\Models\HelpCenter\Article;
-use App\Models\HelpCenter\Category;
+use App\Models\HelpCenter\Category as HelpCenterCategory;
 use App\Models\HelpCenter\Form;
 use App\Models\PersonalAccessToken;
-use App\Policies\ArticlePolicy;
-use App\Policies\CategoryPolicy;
-use App\Policies\FormPolicy;
+use App\Policies\HelpCenter\ArticlePolicy as HelpCenterArticlePolicy;
+use App\Policies\HelpCenter\CategoryPolicy as HelpCenterCategoryPolicy;
+use App\Policies\HelpCenter\FormPolicy as HelpCenterFormPolicy;
 use App\Settings\GeneralSettings;
 use BeyondCode\Mailbox\Facades\Mailbox;
 use Filament\Support\Colors\Color;
@@ -108,9 +108,10 @@ class AppServiceProvider extends ServiceProvider
      */
     private function configureGatePolicies(): void
     {
-        Gate::policy(Article::class, ArticlePolicy::class);
-        Gate::policy(Category::class, CategoryPolicy::class);
-        Gate::policy(Form::class, FormPolicy::class);
+        // Help Center policies
+        Gate::policy(Article::class, HelpCenterArticlePolicy::class);
+        Gate::policy(HelpCenterCategory::class, HelpCenterCategoryPolicy::class);
+        Gate::policy(Form::class, HelpCenterFormPolicy::class);
     }
 
     /**

@@ -7,6 +7,7 @@ use App\Filament\Clusters\Settings;
 use App\Filament\Clusters\Settings\Resources\UserResource\Pages;
 use App\Filament\Clusters\Settings\Resources\UserResource\Pages\EditUser;
 use App\Filament\Clusters\Settings\Resources\UserResource\RelationManagers\TokensRelationManager;
+use App\Models\Role;
 use App\Models\User;
 use Filament\Forms;
 use Filament\Forms\Components\Actions\Action;
@@ -88,6 +89,14 @@ class UserResource extends Resource
                     ->schema([
                         Forms\Components\Section::make(__('Associations'))
                             ->schema([
+                                Forms\Components\Select::make('roles')
+                                    ->label(__('Roles'))
+                                    ->relationship(name: 'roles', titleAttribute: 'name')
+                                    ->multiple()
+                                    ->preload()
+                                    ->searchable()
+                                    ->helperText(__('Select the roles to assign to this user. Roles control what the user can access and do in the system.'))
+                                    ->columnSpanFull(),
                                 Forms\Components\Select::make('groups')
                                     ->relationship(name: 'groups', titleAttribute: 'name')
                                     ->multiple()
@@ -145,6 +154,11 @@ class UserResource extends Resource
                     ->color(fn (UserType $state): string => $state->getColor())
                     ->icon(fn (UserType $state): string => $state->getIcon())
                     ->sortable(),
+                Tables\Columns\TextColumn::make('roles.name')
+                    ->label(__('Roles'))
+                    ->badge()
+                    ->separator(', ')
+                    ->color('primary'),
                 Tables\Columns\TextColumn::make('groups_count')
                     ->counts('groups')
                     ->label(__('Groups')),
@@ -166,6 +180,13 @@ class UserResource extends Resource
                     ->options(UserType::options())
                     ->searchable()
                     ->preload(),
+                
+                Tables\Filters\SelectFilter::make('roles')
+                    ->label(__('Roles'))
+                    ->relationship('roles', 'name')
+                    ->multiple()
+                    ->preload()
+                    ->searchable(),
                 
                 Tables\Filters\TernaryFilter::make('is_active')
                     ->label(__('Active'))
