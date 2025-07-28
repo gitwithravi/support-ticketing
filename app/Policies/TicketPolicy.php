@@ -2,11 +2,10 @@
 
 namespace App\Policies;
 
+use App\Models\User;
 use App\Models\Client;
 use App\Models\Ticket;
-use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
-use Illuminate\Contracts\Auth\Authenticatable;
 
 class TicketPolicy
 {
@@ -15,176 +14,144 @@ class TicketPolicy
     /**
      * Determine whether the user can view any models.
      */
-    public function viewAny(Authenticatable $user): bool
+    public function viewAny(User|Client $user): bool
     {
-        // If it's a Client, they can only view their own tickets
         if ($user instanceof Client) {
-            return true; // Clients can view tickets (filtered by scopes)
+            return true; // Clients can view their own tickets
         }
-
-        // If it's a User (staff), check permissions
-        if ($user instanceof User) {
-            return $user->can('view_any_ticket');
-        }
-
-        return false;
+        
+        return $user->can('view_any_ticket');
     }
 
     /**
      * Determine whether the user can view the model.
      */
-    public function view(Authenticatable $user, Ticket $ticket): bool
+    public function view(User|Client $user, Ticket $ticket): bool
     {
-        // If it's a Client, they can only view their own tickets
         if ($user instanceof Client) {
             return $ticket->requester_id === $user->id;
         }
-
-        // If it's a User (staff), check permissions
-        if ($user instanceof User) {
-            return $user->can('view_ticket');
-        }
-
-        return false;
+        
+        return $user->can('view_ticket');
     }
 
     /**
      * Determine whether the user can create models.
      */
-    public function create(Authenticatable $user): bool
+    public function create(User|Client $user): bool
     {
-        // Clients can create tickets
         if ($user instanceof Client) {
-            return true;
+            return true; // Clients can create tickets
         }
-
-        // If it's a User (staff), check permissions
-        if ($user instanceof User) {
-            return $user->can('create_ticket');
-        }
-
-        return false;
+        
+        return $user->can('create_ticket');
     }
 
     /**
      * Determine whether the user can update the model.
      */
-    public function update(Authenticatable $user, Ticket $ticket): bool
+    public function update(User|Client $user, Ticket $ticket): bool
     {
-        // Clients cannot update tickets (only staff can)
         if ($user instanceof Client) {
-            return false;
+            return false; // Clients cannot update tickets
         }
-
-        // If it's a User (staff), check permissions
-        if ($user instanceof User) {
-            return $user->can('update_ticket');
-        }
-
-        return false;
+        
+        return $user->can('update_ticket');
     }
 
     /**
      * Determine whether the user can delete the model.
      */
-    public function delete(Authenticatable $user, Ticket $ticket): bool
+    public function delete(User|Client $user, Ticket $ticket): bool
     {
-        // Only Users (staff) can delete tickets
-        if ($user instanceof User) {
-            return $user->can('delete_ticket');
+        if ($user instanceof Client) {
+            return false; // Clients cannot delete tickets
         }
-
-        return false;
+        
+        return $user->can('delete_ticket');
     }
 
     /**
      * Determine whether the user can bulk delete.
      */
-    public function deleteAny(Authenticatable $user): bool
+    public function deleteAny(User|Client $user): bool
     {
-        // Only Users (staff) can delete tickets
-        if ($user instanceof User) {
-            return $user->can('delete_any_ticket');
+        if ($user instanceof Client) {
+            return false; // Clients cannot bulk delete tickets
         }
-
-        return false;
+        
+        return $user->can('delete_any_ticket');
     }
 
     /**
      * Determine whether the user can permanently delete.
      */
-    public function forceDelete(Authenticatable $user, Ticket $ticket): bool
+    public function forceDelete(User|Client $user, Ticket $ticket): bool
     {
-        // Only Users (staff) can force delete tickets
-        if ($user instanceof User) {
-            return $user->can('force_delete_ticket');
+        if ($user instanceof Client) {
+            return false; // Clients cannot force delete tickets
         }
-
-        return false;
+        
+        return $user->can('force_delete_ticket');
     }
 
     /**
      * Determine whether the user can permanently bulk delete.
      */
-    public function forceDeleteAny(Authenticatable $user): bool
+    public function forceDeleteAny(User|Client $user): bool
     {
-        // Only Users (staff) can force delete tickets
-        if ($user instanceof User) {
-            return $user->can('force_delete_any_ticket');
+        if ($user instanceof Client) {
+            return false; // Clients cannot bulk force delete tickets
         }
-
-        return false;
+        
+        return $user->can('force_delete_any_ticket');
     }
 
     /**
      * Determine whether the user can restore.
      */
-    public function restore(Authenticatable $user, Ticket $ticket): bool
+    public function restore(User|Client $user, Ticket $ticket): bool
     {
-        // Only Users (staff) can restore tickets
-        if ($user instanceof User) {
-            return $user->can('restore_ticket');
+        if ($user instanceof Client) {
+            return false; // Clients cannot restore tickets
         }
-
-        return false;
+        
+        return $user->can('restore_ticket');
     }
 
     /**
      * Determine whether the user can bulk restore.
      */
-    public function restoreAny(Authenticatable $user): bool
+    public function restoreAny(User|Client $user): bool
     {
-        // Only Users (staff) can restore tickets
-        if ($user instanceof User) {
-            return $user->can('restore_any_ticket');
+        if ($user instanceof Client) {
+            return false; // Clients cannot bulk restore tickets
         }
-
-        return false;
+        
+        return $user->can('restore_any_ticket');
     }
 
     /**
      * Determine whether the user can replicate.
      */
-    public function replicate(Authenticatable $user, Ticket $ticket): bool
+    public function replicate(User|Client $user, Ticket $ticket): bool
     {
-        // Only Users (staff) can replicate tickets
-        if ($user instanceof User) {
-            return $user->can('replicate_ticket');
+        if ($user instanceof Client) {
+            return false; // Clients cannot replicate tickets
         }
-
-        return false;
+        
+        return $user->can('replicate_ticket');
     }
 
     /**
      * Determine whether the user can reorder.
      */
-    public function reorder(Authenticatable $user): bool
+    public function reorder(User|Client $user): bool
     {
-        // Only Users (staff) can reorder tickets
-        if ($user instanceof User) {
-            return $user->can('reorder_ticket');
+        if ($user instanceof Client) {
+            return false; // Clients cannot reorder tickets
         }
-
-        return false;
+        
+        return $user->can('reorder_ticket');
     }
 }
