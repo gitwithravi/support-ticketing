@@ -8,6 +8,7 @@ use App\Enums\Tickets\TicketUserStatus;
 use App\Enums\Users\UserType;
 use App\Filament\Forms\Components\TicketComments;
 use App\Filament\Resources\TicketResource;
+use App\Models\Breakage;
 use App\Models\Ticket;
 use Filament\Actions;
 use Filament\Forms\Components\Group;
@@ -15,6 +16,7 @@ use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ViewRecord;
@@ -234,13 +236,40 @@ class ViewTicket extends ViewRecord
                         ->options(MaintenanceTerm::class)
                         ->default(fn (Ticket $record) => $record->maintenance_term)
                         ->nullable()
-                        ->native(false),
+                        ->native(false)
+                        ->live(),
+                    
+                    Textarea::make('breakage_description')
+                        ->label('Breakage Description')
+                        ->nullable()
+                        ->rows(3)
+                        ->columnSpanFull()
+                        ->visible(fn ($get) => $get('maintenance_term') === MaintenanceTerm::BREAKAGES->value),
+                    
+                    TextInput::make('responsible_reg_nos')
+                        ->label('Responsible Registration Numbers')
+                        ->nullable()
+                        ->columnSpanFull()
+                        ->visible(fn ($get) => $get('maintenance_term') === MaintenanceTerm::BREAKAGES->value),
                 ])
                 ->action(function (array $data, Ticket $record): void {
                     $record->update([
                         'status' => $data['status'],
                         'maintenance_term' => $data['maintenance_term']
                     ]);
+                    
+                    // Create breakage record when maintenance_term is BREAKAGES
+                    if ($data['maintenance_term'] === MaintenanceTerm::BREAKAGES->value) {
+                        // Update existing breakage or create new one
+                        $record->breakages()->updateOrCreate(
+                            ['ticket_id' => $record->id],
+                            [
+                                'breakage_description' => $data['breakage_description'],
+                                'responsible_reg_nos' => $data['responsible_reg_nos'],
+                                'processed' => false,
+                            ]
+                        );
+                    }
                     
                     $this->refreshFormData([
                         'status',
@@ -266,13 +295,40 @@ class ViewTicket extends ViewRecord
                         ->options(MaintenanceTerm::class)
                         ->default(fn (Ticket $record) => $record->maintenance_term)
                         ->required()
-                        ->native(false),
+                        ->native(false)
+                        ->live(),
+                    
+                    Textarea::make('breakage_description')
+                        ->label('Breakage Description')
+                        ->nullable()
+                        ->rows(3)
+                        ->columnSpanFull()
+                        ->visible(fn ($get) => $get('maintenance_term') === MaintenanceTerm::BREAKAGES->value),
+                    
+                    TextInput::make('responsible_reg_nos')
+                        ->label('Responsible Registration Numbers')
+                        ->nullable()
+                        ->columnSpanFull()
+                        ->visible(fn ($get) => $get('maintenance_term') === MaintenanceTerm::BREAKAGES->value),
                 ])
                 ->action(function (array $data, Ticket $record): void {
                     $record->update([
                         'status' => TicketStatus::CLOSED,
                         'maintenance_term' => $data['maintenance_term']
                     ]);
+                    
+                    // Create breakage record when maintenance_term is BREAKAGES
+                    if ($data['maintenance_term'] === MaintenanceTerm::BREAKAGES->value) {
+                        // Update existing breakage or create new one
+                        $record->breakages()->updateOrCreate(
+                            ['ticket_id' => $record->id],
+                            [
+                                'breakage_description' => $data['breakage_description'],
+                                'responsible_reg_nos' => $data['responsible_reg_nos'],
+                                'processed' => false,
+                            ]
+                        );
+                    }
                     
                     $this->refreshFormData([
                         'status',

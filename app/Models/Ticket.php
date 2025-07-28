@@ -175,6 +175,14 @@ class Ticket extends Model
     }
 
     /**
+     * A ticket has many breakages.
+     */
+    public function breakages(): HasMany
+    {
+        return $this->hasMany(Breakage::class);
+    }
+
+    /**
      * Get the main ticket that this ticket is a duplicate of.
      *
      * This defines a relationship where the current ticket was marked as a duplicate
