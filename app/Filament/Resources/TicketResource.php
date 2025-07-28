@@ -9,8 +9,8 @@ use App\Enums\Tickets\TicketType;
 use App\Filament\Forms\Components\TicketComments;
 use App\Filament\Resources\TicketResource\Pages;
 use App\Filament\Resources\TicketResource\Pages\EditTicket;
-use App\Filament\Resources\TicketResource\RelationManagers\FieldsRelationManager;
 use App\Filament\Resources\TicketResource\RelationManagers;
+use App\Filament\Resources\TicketResource\RelationManagers\FieldsRelationManager;
 use App\Models\Building;
 use App\Models\Category;
 use App\Models\SubCategory;
@@ -391,6 +391,28 @@ class TicketResource extends Resource
                     ->options(MaintenanceTerm::class)
                     ->searchable()
                     ->preload(),
+                Filter::make('verification_status')
+                    ->label(__('Verification Status'))
+                    ->form([
+                        Forms\Components\Select::make('verified')
+                            ->label(__('Verification Status'))
+                            ->options([
+                                'verified' => __('Verified'),
+                                'not_verified' => __('Not Verified'),
+                            ])
+                            ->placeholder(__('All tickets')),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when(
+                                $data['verified'] === 'verified',
+                                fn (Builder $query): Builder => $query->whereNotNull('verification_status')
+                            )
+                            ->when(
+                                $data['verified'] === 'not_verified',
+                                fn (Builder $query): Builder => $query->whereNull('verification_status')
+                            );
+                    }),
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),

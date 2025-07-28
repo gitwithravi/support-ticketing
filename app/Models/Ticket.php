@@ -7,6 +7,7 @@ use App\Enums\Tickets\TicketPriority;
 use App\Enums\Tickets\TicketStatus;
 use App\Enums\Tickets\TicketType;
 use App\Enums\Tickets\TicketUserStatus;
+use App\Enums\Tickets\VerificationStatus;
 use App\Models\Scopes\CategoryScope;
 use App\Models\Scopes\ClientScope;
 use App\Models\Scopes\GroupScope;
@@ -52,6 +53,8 @@ class Ticket extends Model
         'cat_supervisor_status',
         'build_supervisor_status',
         'verified_by',
+        'verification_timestamp',
+        'verification_status',
         'ticket_closing_date',
         'maintenance_term',
     ];
@@ -71,6 +74,8 @@ class Ticket extends Model
             'user_status' => TicketUserStatus::class,
             'cat_supervisor_status' => TicketUserStatus::class,
             'build_supervisor_status' => TicketUserStatus::class,
+            'verification_timestamp' => 'datetime',
+            'verification_status' => VerificationStatus::class,
             'ticket_closing_date' => 'datetime',
             'maintenance_term' => MaintenanceTerm::class,
         ];

@@ -5,6 +5,7 @@ namespace App\Filament\Resources\TicketResource\Pages;
 use App\Enums\Tickets\MaintenanceTerm;
 use App\Enums\Tickets\TicketStatus;
 use App\Enums\Tickets\TicketUserStatus;
+use App\Enums\Tickets\VerificationStatus;
 use App\Enums\Users\UserType;
 use App\Filament\Forms\Components\TicketComments;
 use App\Filament\Resources\TicketResource;
@@ -77,69 +78,72 @@ class ViewTicket extends ViewRecord
                             ->columns(2),
 
                         TicketComments::make(),
-                         Section::make('Status Information')
+                        Section::make('Status Information')
                             ->schema([
                                 Placeholder::make('user_status')
                                     ->label('User Status')
-                                    //->inlineLabel()
+                                    // ->inlineLabel()
                                     ->content(function (Ticket $record) {
-                                        if (!$record->user_status) {
+                                        if (! $record->user_status) {
                                             return new HtmlString('<span class="inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10">-</span>');
                                         }
                                         $color = $record->user_status->getColor();
                                         $label = $record->user_status->getLabel();
-                                        $colorClasses = match($color) {
+                                        $colorClasses = match ($color) {
                                             'warning' => 'bg-yellow-50 text-yellow-800 ring-yellow-600/20',
                                             'success' => 'bg-green-50 text-green-800 ring-green-600/20',
                                             'danger' => 'bg-red-50 text-red-800 ring-red-600/20',
                                             default => 'bg-gray-50 text-gray-800 ring-gray-600/20',
                                         };
+
                                         return new HtmlString("<span class=\"inline-flex items-center rounded-md {$colorClasses} px-2 py-1 text-xs font-medium ring-1 ring-inset\">{$label}</span>");
                                     }),
 
                                 Placeholder::make('cat_supervisor_status')
                                     ->label('Category Supervisory Status')
-                                    //->inlineLabel()
+                                    // ->inlineLabel()
                                     ->content(function (Ticket $record) {
-                                        if (!$record->cat_supervisor_status) {
+                                        if (! $record->cat_supervisor_status) {
                                             return new HtmlString('<span class="inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10">-</span>');
                                         }
                                         $color = $record->cat_supervisor_status->getColor();
                                         $label = $record->cat_supervisor_status->getLabel();
-                                        $colorClasses = match($color) {
+                                        $colorClasses = match ($color) {
                                             'warning' => 'bg-yellow-50 text-yellow-800 ring-yellow-600/20',
                                             'success' => 'bg-green-50 text-green-800 ring-green-600/20',
                                             'danger' => 'bg-red-50 text-red-800 ring-red-600/20',
                                             default => 'bg-gray-50 text-gray-800 ring-gray-600/20',
                                         };
+
                                         return new HtmlString("<span class=\"inline-flex items-center rounded-md {$colorClasses} px-2 py-1 text-xs font-medium ring-1 ring-inset\">{$label}</span>");
                                     }),
 
                                 Placeholder::make('build_supervisor_status')
                                     ->label('Building Supervisory Status')
-                                    //->inlineLabel()
+                                    // ->inlineLabel()
                                     ->content(function (Ticket $record) {
-                                        if (!$record->build_supervisor_status) {
+                                        if (! $record->build_supervisor_status) {
                                             return new HtmlString('<span class="inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10">-</span>');
                                         }
                                         $color = $record->build_supervisor_status->getColor();
                                         $label = $record->build_supervisor_status->getLabel();
-                                        $colorClasses = match($color) {
+                                        $colorClasses = match ($color) {
                                             'warning' => 'bg-yellow-50 text-yellow-800 ring-yellow-600/20',
                                             'success' => 'bg-green-50 text-green-800 ring-green-600/20',
                                             'danger' => 'bg-red-50 text-red-800 ring-red-600/20',
                                             default => 'bg-gray-50 text-gray-800 ring-gray-600/20',
                                         };
+
                                         return new HtmlString("<span class=\"inline-flex items-center rounded-md {$colorClasses} px-2 py-1 text-xs font-medium ring-1 ring-inset\">{$label}</span>");
                                     }),
 
                                 Placeholder::make('is_escalated')
                                     ->label('Escalated')
-                                    //->inlineLabel()
+                                    // ->inlineLabel()
                                     ->content(fn (Ticket $record): string => $record->is_escalated ? 'Yes' : 'No'),
                             ])
                             ->columns(2)
-                            ->hidden(fn (Ticket $record): bool => !$record->user_status && !$record->cat_supervisor_status && !$record->build_supervisor_status && !$record->is_escalated),
+                            ->hidden(fn (Ticket $record): bool => ! $record->user_status && ! $record->cat_supervisor_status && ! $record->build_supervisor_status && ! $record->is_escalated),
                     ])
                     ->columnSpan(['lg' => 2]),
 
@@ -203,10 +207,38 @@ class ViewTicket extends ViewRecord
                                     ->inlineLabel()
                                     ->content(fn (Ticket $record): string => $record->updated_at?->format('M j, Y g:i A') ?? '-'),
 
-                              
+                                Placeholder::make('verification_status')
+                                    ->label('Verification Status')
+                                    ->inlineLabel()
+                                    ->content(function (Ticket $record) {
+                                        if (! $record->verification_status) {
+                                            return new HtmlString('<span class="inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10">Not Verified</span>');
+                                        }
+                                        $color = $record->verification_status->getColor();
+                                        $label = $record->verification_status->getLabel();
+                                        $colorClasses = match ($color) {
+                                            'warning' => 'bg-yellow-50 text-yellow-800 ring-yellow-600/20',
+                                            'success' => 'bg-green-50 text-green-800 ring-green-600/20',
+                                            'danger' => 'bg-red-50 text-red-800 ring-red-600/20',
+                                            default => 'bg-gray-50 text-gray-800 ring-gray-600/20',
+                                        };
+
+                                        return new HtmlString("<span class=\"inline-flex items-center rounded-md {$colorClasses} px-2 py-1 text-xs font-medium ring-1 ring-inset\">{$label}</span>");
+                                    }),
+
+                                Placeholder::make('verification_timestamp')
+                                    ->label('Verified At')
+                                    ->inlineLabel()
+                                    ->content(fn (Ticket $record): string => $record->verification_timestamp?->format('M j, Y g:i A') ?? '-')
+                                    ->visible(fn (Ticket $record): bool => $record->verification_timestamp !== null),
+
+                                Placeholder::make('verified_by_name')
+                                    ->label('Verified By')
+                                    ->inlineLabel()
+                                    ->content(fn (Ticket $record): string => $record->verifiedBy?->name ?? '-')
+                                    ->visible(fn (Ticket $record): bool => $record->verified_by !== null),
                             ]),
 
-                       
                     ])
                     ->columnSpan(['lg' => 1]),
             ])
@@ -217,7 +249,7 @@ class ViewTicket extends ViewRecord
     {
         $currentUser = auth()->user();
         $record = $this->getRecord();
-        
+
         $actions = [
             Actions\Action::make('changeStatus')
                 ->label('Change Status')
@@ -230,7 +262,7 @@ class ViewTicket extends ViewRecord
                         ->default(fn (Ticket $record) => $record->status)
                         ->required()
                         ->native(false),
-                    
+
                     Select::make('maintenance_term')
                         ->label('Maintenance Term')
                         ->options(MaintenanceTerm::class)
@@ -238,14 +270,14 @@ class ViewTicket extends ViewRecord
                         ->nullable()
                         ->native(false)
                         ->live(),
-                    
+
                     Textarea::make('breakage_description')
                         ->label('Breakage Description')
                         ->nullable()
                         ->rows(3)
                         ->columnSpanFull()
                         ->visible(fn ($get) => $get('maintenance_term') === MaintenanceTerm::BREAKAGES->value),
-                    
+
                     TextInput::make('responsible_reg_nos')
                         ->label('Responsible Registration Numbers')
                         ->nullable()
@@ -255,9 +287,9 @@ class ViewTicket extends ViewRecord
                 ->action(function (array $data, Ticket $record): void {
                     $record->update([
                         'status' => $data['status'],
-                        'maintenance_term' => $data['maintenance_term']
+                        'maintenance_term' => $data['maintenance_term'],
                     ]);
-                    
+
                     // Create breakage record when maintenance_term is BREAKAGES
                     if ($data['maintenance_term'] === MaintenanceTerm::BREAKAGES->value) {
                         // Update existing breakage or create new one
@@ -270,12 +302,12 @@ class ViewTicket extends ViewRecord
                             ]
                         );
                     }
-                    
+
                     $this->refreshFormData([
                         'status',
-                        'maintenance_term'
+                        'maintenance_term',
                     ]);
-                    
+
                     Notification::make()
                         ->title('Ticket status updated successfully!')
                         ->success()
@@ -297,14 +329,14 @@ class ViewTicket extends ViewRecord
                         ->required()
                         ->native(false)
                         ->live(),
-                    
+
                     Textarea::make('breakage_description')
                         ->label('Breakage Description')
                         ->nullable()
                         ->rows(3)
                         ->columnSpanFull()
                         ->visible(fn ($get) => $get('maintenance_term') === MaintenanceTerm::BREAKAGES->value),
-                    
+
                     TextInput::make('responsible_reg_nos')
                         ->label('Responsible Registration Numbers')
                         ->nullable()
@@ -314,9 +346,9 @@ class ViewTicket extends ViewRecord
                 ->action(function (array $data, Ticket $record): void {
                     $record->update([
                         'status' => TicketStatus::CLOSED,
-                        'maintenance_term' => $data['maintenance_term']
+                        'maintenance_term' => $data['maintenance_term'],
                     ]);
-                    
+
                     // Create breakage record when maintenance_term is BREAKAGES
                     if ($data['maintenance_term'] === MaintenanceTerm::BREAKAGES->value) {
                         // Update existing breakage or create new one
@@ -329,12 +361,12 @@ class ViewTicket extends ViewRecord
                             ]
                         );
                     }
-                    
+
                     $this->refreshFormData([
                         'status',
-                        'maintenance_term'
+                        'maintenance_term',
                     ]);
-                    
+
                     Notification::make()
                         ->title('Ticket closed successfully!')
                         ->success()
@@ -347,17 +379,17 @@ class ViewTicket extends ViewRecord
         ];
 
         // Add supervisor close ticket action
-        if ($currentUser && $currentUser->user_type && 
+        if ($currentUser && $currentUser->user_type &&
             in_array($currentUser->user_type, [UserType::CATEGORY_SUPERVISOR, UserType::BUILDING_SUPERVISOR])) {
-            
+
             $isCategorySupervisor = $currentUser->user_type === UserType::CATEGORY_SUPERVISOR;
             $isBuildingSupervisor = $currentUser->user_type === UserType::BUILDING_SUPERVISOR;
-            
+
             // Check if action can be performed
-            $canPerformAction = $record->status === TicketStatus::CLOSED && 
+            $canPerformAction = $record->status === TicketStatus::CLOSED &&
                 (($isCategorySupervisor && $record->cat_supervisor_status !== TicketUserStatus::CLOSE) ||
                  ($isBuildingSupervisor && $record->build_supervisor_status !== TicketUserStatus::CLOSE));
-            
+
             $actions[] = Actions\Action::make('supervisorClose')
                 ->label($isCategorySupervisor ? 'Close as Category Supervisor' : 'Close as Building Supervisor')
                 ->icon('heroicon-o-check-circle')
@@ -372,28 +404,76 @@ class ViewTicket extends ViewRecord
                     } else {
                         $record->update(['build_supervisor_status' => TicketUserStatus::CLOSE]);
                     }
-                    
+
                     $this->refreshFormData([
                         'cat_supervisor_status',
-                        'build_supervisor_status'
+                        'build_supervisor_status',
                     ]);
                 })
-                ->disabled(!$canPerformAction)
+                ->disabled(! $canPerformAction)
                 ->tooltip(function () use ($record, $canPerformAction, $isCategorySupervisor): ?string {
-                    if (!$canPerformAction) {
+                    if (! $canPerformAction) {
                         if ($record->status !== TicketStatus::CLOSED) {
                             return 'Ticket must be closed first before supervisor action';
                         }
                         if ($isCategorySupervisor && $record->cat_supervisor_status === TicketUserStatus::CLOSE) {
                             return 'Category supervisor closure already completed';
                         }
-                        if (!$isCategorySupervisor && $record->build_supervisor_status === TicketUserStatus::CLOSE) {
+                        if (! $isCategorySupervisor && $record->build_supervisor_status === TicketUserStatus::CLOSE) {
                             return 'Building supervisor closure already completed';
                         }
                     }
+
                     return null;
                 });
         }
+
+        $actions[] = Actions\Action::make('verifyTicket')
+            ->label('Verify')
+            ->icon('heroicon-o-check-badge')
+            ->color('info')
+            ->form([
+                Select::make('verification_status')
+                    ->label('Verification Status')
+                    ->options(VerificationStatus::class)
+                    ->default(fn (Ticket $record) => $record->verification_status)
+                    ->required()
+                    ->native(false),
+            ])
+            ->action(function (array $data, Ticket $record): void {
+                $record->update([
+                    'verification_status' => $data['verification_status'],
+                    'verification_timestamp' => now(),
+                    'verified_by' => auth()->id(),
+                ]);
+
+                $this->refreshFormData([
+                    'verification_status',
+                    'verification_timestamp',
+                    'verified_by',
+                ]);
+
+                Notification::make()
+                    ->title('Ticket verification updated successfully!')
+                    ->success()
+                    ->send();
+            })
+            ->modalHeading('Verify Ticket')
+            ->modalDescription('Update the verification status for this ticket.')
+            ->modalSubmitActionLabel('Update Verification')
+            ->visible(function (Ticket $record) use ($currentUser): bool {
+                // Hide if user is not admin or building supervisor
+                if (! $currentUser || (! $currentUser->isAdmin() && $currentUser->user_type !== UserType::BUILDING_SUPERVISOR)) {
+                    return false;
+                }
+
+                // Hide if verification_status is already set
+                if ($record->verification_status !== null) {
+                    return false;
+                }
+
+                return true;
+            });
 
         $actions[] = Actions\EditAction::make()
             ->label('Edit Ticket')
