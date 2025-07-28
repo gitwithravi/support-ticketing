@@ -154,7 +154,7 @@ class ViewTicket extends ViewRecord
                                     ->content(fn (Ticket $record): string => $record->requester?->email ?? '-'),
 
                                 Placeholder::make('requester_unique_id')
-                                    ->label('Employee/Registration ID')
+                                    ->label('EMP/REG No')
                                     ->inlineLabel()
                                     ->content(fn (Ticket $record): string => $record->requester?->unique_id ?? '-'),
                             ]),
