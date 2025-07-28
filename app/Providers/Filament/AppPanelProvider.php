@@ -56,9 +56,9 @@ class AppPanelProvider extends PanelProvider
             ->darkMode(false)
             ->favicon(asset('favicon.png'))
             ->brandLogo(fn () => Auth::guest()
-                ? asset('img/logo/logo-black.svg')
-                : asset('img/logo/logo-white.svg'))
-            ->brandLogoHeight('2rem')
+                ? asset('img/logo/logo-black.png')
+                : asset('img/logo/logo-white.png'))
+            ->brandLogoHeight('3.5rem')
             ->defaultAvatarProvider(GravatarProvider::class)
             ->discoverResources(
                 in: app_path('Filament/Resources'),

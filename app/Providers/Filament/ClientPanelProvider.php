@@ -41,15 +41,15 @@ class ClientPanelProvider extends PanelProvider
                 : asset('favicon.png');
             $brandLogoBlack = ! empty($generalSettings->branding_logo_black)
                 ? Storage::url($generalSettings->branding_logo_black)
-                : asset('img/logo/logo-black.svg');
+                : asset('img/logo/logo-black.png');
             $brandLogoWhite = ! empty($generalSettings->branding_logo_white)
                 ? Storage::url($generalSettings->branding_logo_white)
-                : asset('img/logo/logo-white.svg');
+                : asset('img/logo/logo-white.png');
         } catch (QueryException $e) {
             $font = 'Lexend';
             $brandFavicon = asset('favicon.png');
-            $brandLogoBlack = asset('img/logo/logo-black.svg');
-            $brandLogoWhite = asset('img/logo/logo-white.svg');
+            $brandLogoBlack = asset('img/logo/logo-black.png');
+            $brandLogoWhite = asset('img/logo/logo-white.png');
         }
 
         return $panel
