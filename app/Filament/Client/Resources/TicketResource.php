@@ -18,6 +18,8 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Auth;
 
 class TicketResource extends Resource
 {
@@ -30,6 +32,41 @@ class TicketResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-ticket';
 
     protected static bool $isGloballySearchable = false;
+
+    public static function canViewAny(): bool
+    {
+        return true;
+    }
+
+    public static function canView($record): bool
+    {
+        return true;
+    }
+
+    public static function canCreate(): bool
+    {
+        return true;
+    }
+
+    public static function canEdit($record): bool
+    {
+        return false;
+    }
+
+    public static function canDelete($record): bool
+    {
+        return false;
+    }
+
+    public static function canDeleteAny(): bool
+    {
+        return false;
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()->where('requester_id', Auth::guard('client')->id());
+    }
 
     public static function form(Form $form): Form
     {

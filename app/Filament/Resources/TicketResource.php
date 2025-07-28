@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Enums\Tickets\MaintenanceTerm;
 use App\Enums\Tickets\TicketPriority;
 use App\Enums\Tickets\TicketStatus;
 use App\Enums\Tickets\TicketType;
@@ -9,6 +10,7 @@ use App\Filament\Forms\Components\TicketComments;
 use App\Filament\Resources\TicketResource\Pages;
 use App\Filament\Resources\TicketResource\Pages\EditTicket;
 use App\Filament\Resources\TicketResource\RelationManagers\FieldsRelationManager;
+use App\Filament\Resources\TicketResource\RelationManagers;
 use App\Models\Building;
 use App\Models\Category;
 use App\Models\SubCategory;
@@ -384,6 +386,11 @@ class TicketResource extends Resource
                     ->relationship('group', 'name')
                     ->searchable()
                     ->preload(),
+                SelectFilter::make('maintenance_term')
+                    ->label(__('Maintenance Term'))
+                    ->options(MaintenanceTerm::class)
+                    ->searchable()
+                    ->preload(),
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
@@ -506,7 +513,7 @@ class TicketResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            RelationManagers\BreakagesRelationManager::class,
         ];
     }
 

@@ -113,6 +113,7 @@ class ClientPanelProvider extends PanelProvider
                 Authenticate::class,
                 EnsureUserIsActive::class,
             ])
+            ->plugins([])
             ->renderHook(
                 PanelsRenderHook::TOPBAR_AFTER,
                 fn (): View => view('filament.custom-header'),
