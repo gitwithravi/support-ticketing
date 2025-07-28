@@ -188,6 +188,14 @@ class Ticket extends Model
     }
 
     /**
+     * A ticket has many material requests.
+     */
+    public function materialRequests(): HasMany
+    {
+        return $this->hasMany(MaterialRequest::class);
+    }
+
+    /**
      * Get the main ticket that this ticket is a duplicate of.
      *
      * This defines a relationship where the current ticket was marked as a duplicate
