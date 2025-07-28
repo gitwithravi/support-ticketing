@@ -12,6 +12,7 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class MaterialRequestResource extends Resource
 {
@@ -37,7 +38,17 @@ class MaterialRequestResource extends Resource
                                     ->label('Ticket')
                                     ->relationship(
                                         name: 'ticket',
-                                        modifyQueryUsing: fn ($query) => $query->with(['requester', 'building', 'category'])
+                                        modifyQueryUsing: function ($query) {
+                                            $currentUser = auth()->user();
+                                            
+                                            // Apply user-based filtering for ticket selection
+                                            if ($currentUser && $currentUser->isBuildingSupervisor()) {
+                                                $supervisedBuildingIds = $currentUser->supervisedBuildings()->pluck('id');
+                                                $query->whereIn('building_id', $supervisedBuildingIds);
+                                            }
+                                            
+                                            return $query->with(['requester', 'building', 'category']);
+                                        }
                                     )
                                     ->getOptionLabelFromRecordUsing(fn (Ticket $record) => self::formatTicketLabel($record))
                                     ->searchable(['ticket_id', 'subject', 'room_no'])
@@ -89,13 +100,26 @@ class MaterialRequestResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            ->modifyQueryUsing(fn ($query) => $query->with([
-                'ticket.building',
-                'ticket.category', 
-                'ticket.subCategory',
-                'createdBy',
-                'processedBy'
-            ]))
+            ->modifyQueryUsing(function ($query) {
+                $currentUser = auth()->user();
+                
+                // Apply user-based filtering
+                if ($currentUser && $currentUser->isBuildingSupervisor()) {
+                    // Building supervisors see only material requests from buildings they supervise
+                    $supervisedBuildingIds = $currentUser->supervisedBuildings()->pluck('id');
+                    $query->whereHas('ticket', function ($ticketQuery) use ($supervisedBuildingIds) {
+                        $ticketQuery->whereIn('building_id', $supervisedBuildingIds);
+                    });
+                }
+                
+                return $query->with([
+                    'ticket.building',
+                    'ticket.category', 
+                    'ticket.subCategory',
+                    'createdBy',
+                    'processedBy'
+                ]);
+            })
             ->columns([
                 Tables\Columns\TextColumn::make('ticket.ticket_id')
                     ->label('Ticket ID')
@@ -252,5 +276,21 @@ class MaterialRequestResource extends Resource
         ];
 
         return implode(' - ', $parts);
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        $query = parent::getEloquentQuery();
+        $currentUser = auth()->user();
+
+        // Apply user-based filtering for all queries
+        if ($currentUser && $currentUser->isBuildingSupervisor()) {
+            $supervisedBuildingIds = $currentUser->supervisedBuildings()->pluck('id');
+            $query->whereHas('ticket', function ($ticketQuery) use ($supervisedBuildingIds) {
+                $ticketQuery->whereIn('building_id', $supervisedBuildingIds);
+            });
+        }
+
+        return $query;
     }
 }
