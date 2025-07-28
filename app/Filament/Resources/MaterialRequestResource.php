@@ -7,12 +7,15 @@ use App\Filament\Resources\MaterialRequestResource\Pages;
 use App\Filament\Resources\MaterialRequestResource\RelationManagers;
 use App\Models\MaterialRequest;
 use App\Models\Ticket;
+use App\Services\PrfApiService;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 
 class MaterialRequestResource extends Resource
 {
@@ -40,7 +43,7 @@ class MaterialRequestResource extends Resource
                                         name: 'ticket',
                                         modifyQueryUsing: function ($query) {
                                             $currentUser = auth()->user();
-                                            
+
                                             // Apply user-based filtering for ticket selection
                                             if ($currentUser && $currentUser->isBuildingSupervisor()) {
                                                 $supervisedBuildingIds = $currentUser->supervisedBuildings()->pluck('id');
@@ -54,7 +57,7 @@ class MaterialRequestResource extends Resource
                                                     $query->whereRaw('1 = 0');
                                                 }
                                             }
-                                            
+
                                             return $query->with(['requester', 'building', 'category']);
                                         }
                                     )
@@ -98,7 +101,6 @@ class MaterialRequestResource extends Resource
                                     ->content(fn ($record) => $record?->processedBy?->name ?? 'Not processed yet'),
                             ]),
 
-                        
                     ])
                     ->columnSpan(['lg' => 1]),
             ])
@@ -110,7 +112,7 @@ class MaterialRequestResource extends Resource
         return $table
             ->modifyQueryUsing(function ($query) {
                 $currentUser = auth()->user();
-                
+
                 // Apply user-based filtering
                 if ($currentUser && $currentUser->isBuildingSupervisor()) {
                     // Building supervisors see only material requests from buildings they supervise
@@ -130,13 +132,13 @@ class MaterialRequestResource extends Resource
                         $query->whereRaw('1 = 0');
                     }
                 }
-                
+
                 return $query->with([
                     'ticket.building',
-                    'ticket.category', 
+                    'ticket.category',
                     'ticket.subCategory',
                     'createdBy',
-                    'processedBy'
+                    'processedBy',
                 ]);
             })
             ->columns([
@@ -192,6 +194,12 @@ class MaterialRequestResource extends Resource
                     ->label('Status')
                     ->badge()
                     ->sortable()
+                    ->toggleable(),
+
+                Tables\Columns\TextColumn::make('user_prf_id')
+                    ->label('PRF ID')
+                    ->placeholder('Not created')
+                    ->copyable()
                     ->toggleable(),
 
                 Tables\Columns\TextColumn::make('createdBy.name')
@@ -261,6 +269,40 @@ class MaterialRequestResource extends Resource
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\BulkAction::make('create_prf')
+                        ->label('Create PRF')
+                        ->icon('heroicon-o-document-plus')
+                        ->color('primary')
+                        ->requiresConfirmation()
+                        ->modalHeading('Create Purchase Request Form (PRF)')
+                        ->modalDescription('Create a PRF in the Purchase Management system for the selected material requests.')
+                        ->modalWidth('lg')
+                        ->form([
+                            Forms\Components\TextInput::make('purpose')
+                                ->label('Purpose')
+                                ->required()
+                                ->maxLength(511)
+                                ->placeholder('Purpose of the purchase request')
+                                ->columnSpanFull(),
+
+                            Forms\Components\TextInput::make('contact_no')
+                                ->label('Contact Number')
+                                ->required()
+                                ->maxLength(12)
+                                ->tel()
+                                ->placeholder('Contact number for this request'),
+
+                            Forms\Components\DatePicker::make('requested_delivery_date')
+                                ->label('Requested Delivery Date')
+                                ->required()
+                                ->minDate(now()->addDay()) // Cannot be in the past or today
+                                ->placeholder('Select delivery date'),
+                        ])
+                        ->action(function (Collection $records, array $data) {
+                            return self::createPrfAction($records, $data);
+                        })
+                        ->deselectRecordsAfterCompletion(),
+
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ])
@@ -295,6 +337,89 @@ class MaterialRequestResource extends Resource
         ];
 
         return implode(' - ', $parts);
+    }
+
+    protected static function createPrfAction(Collection $records, array $data): void
+    {
+        try {
+            $prfApiService = new PrfApiService;
+
+            // Load related data
+            $materialRequests = $records->load(['items', 'ticket']);
+
+            // Check if any records already have PRF created
+            $recordsWithPrf = $materialRequests->filter(fn ($request) => $request->status === MaterialRequestStatus::PRF_CREATED);
+            if ($recordsWithPrf->isNotEmpty()) {
+                Notification::make()
+                    ->title('PRF Creation Failed')
+                    ->body('Some selected material requests already have PRF created. Please select only records without PRF.')
+                    ->danger()
+                    ->send();
+
+                return;
+            }
+
+            // Check if all records have items
+            $recordsWithoutItems = $materialRequests->filter(fn ($request) => $request->items->isEmpty());
+            if ($recordsWithoutItems->isNotEmpty()) {
+                Notification::make()
+                    ->title('PRF Creation Failed')
+                    ->body('Some material requests have no items. Please add items before creating PRF.')
+                    ->danger()
+                    ->send();
+
+                return;
+            }
+
+            // Transform data for API
+            $payload = $prfApiService->transformMaterialRequestsToPrfPayload(
+                $materialRequests,
+                $data['purpose'],
+                $data['contact_no'],
+                $data['requested_delivery_date']
+            );
+
+            // Call API
+            $response = $prfApiService->createUserPurchaseRequest($payload);
+
+            if ($response['success']) {
+                $prfId = $response['data']['data']['user_purchase_request']['id'] ?? null;
+
+                if ($prfId) {
+                    // Update all selected records
+                    $materialRequests->each(function (MaterialRequest $record) use ($prfId) {
+                        $record->update([
+                            'status' => MaterialRequestStatus::PRF_CREATED,
+                            'user_prf_id' => (string) $prfId,
+                        ]);
+                    });
+
+                    Notification::make()
+                        ->title('PRF Created Successfully')
+                        ->body("Purchase Request Form created with ID: {$prfId}. Status updated for ".$materialRequests->count().' material requests.')
+                        ->success()
+                        ->send();
+                } else {
+                    Notification::make()
+                        ->title('PRF Creation Warning')
+                        ->body('PRF was created but no ID was returned from the API.')
+                        ->warning()
+                        ->send();
+                }
+            } else {
+                Notification::make()
+                    ->title('PRF Creation Failed')
+                    ->body($response['error'])
+                    ->danger()
+                    ->send();
+            }
+        } catch (\Exception $e) {
+            Notification::make()
+                ->title('PRF Creation Error')
+                ->body('An unexpected error occurred: '.$e->getMessage())
+                ->danger()
+                ->send();
+        }
     }
 
     public static function getEloquentQuery(): Builder

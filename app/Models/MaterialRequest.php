@@ -20,6 +20,7 @@ class MaterialRequest extends Model
         'request_reason',
         'status',
         'processed_by',
+        'user_prf_id',
     ];
 
     protected function casts(): array
