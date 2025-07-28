@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\Tickets\MaintenanceTerm;
 use App\Enums\Tickets\TicketPriority;
 use App\Enums\Tickets\TicketStatus;
 use App\Enums\Tickets\TicketType;
@@ -52,6 +53,7 @@ class Ticket extends Model
         'build_supervisor_status',
         'verified_by',
         'ticket_closing_date',
+        'maintenance_term',
     ];
 
     /**
@@ -70,6 +72,7 @@ class Ticket extends Model
             'cat_supervisor_status' => TicketUserStatus::class,
             'build_supervisor_status' => TicketUserStatus::class,
             'ticket_closing_date' => 'datetime',
+            'maintenance_term' => MaintenanceTerm::class,
         ];
     }
 

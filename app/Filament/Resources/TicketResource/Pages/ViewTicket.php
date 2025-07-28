@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\TicketResource\Pages;
 
+use App\Enums\Tickets\MaintenanceTerm;
 use App\Enums\Tickets\TicketStatus;
 use App\Enums\Tickets\TicketUserStatus;
 use App\Enums\Users\UserType;
@@ -15,6 +16,7 @@ use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Form;
+use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ViewRecord;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Support\HtmlString;
@@ -226,17 +228,66 @@ class ViewTicket extends ViewRecord
                         ->default(fn (Ticket $record) => $record->status)
                         ->required()
                         ->native(false),
+                    
+                    Select::make('maintenance_term')
+                        ->label('Maintenance Term')
+                        ->options(MaintenanceTerm::class)
+                        ->default(fn (Ticket $record) => $record->maintenance_term)
+                        ->nullable()
+                        ->native(false),
                 ])
                 ->action(function (array $data, Ticket $record): void {
-                    $record->update(['status' => $data['status']]);
+                    $record->update([
+                        'status' => $data['status'],
+                        'maintenance_term' => $data['maintenance_term']
+                    ]);
                     
                     $this->refreshFormData([
-                        'status'
+                        'status',
+                        'maintenance_term'
                     ]);
+                    
+                    Notification::make()
+                        ->title('Ticket status updated successfully!')
+                        ->success()
+                        ->send();
                 })
                 ->modalHeading('Change Ticket Status')
                 ->modalDescription('Select a new status for this ticket.')
                 ->modalSubmitActionLabel('Update Status'),
+
+            Actions\Action::make('closeTicket')
+                ->label('Close Ticket')
+                ->icon('heroicon-o-x-circle')
+                ->color('danger')
+                ->form([
+                    Select::make('maintenance_term')
+                        ->label('Maintenance Term')
+                        ->options(MaintenanceTerm::class)
+                        ->default(fn (Ticket $record) => $record->maintenance_term)
+                        ->required()
+                        ->native(false),
+                ])
+                ->action(function (array $data, Ticket $record): void {
+                    $record->update([
+                        'status' => TicketStatus::CLOSED,
+                        'maintenance_term' => $data['maintenance_term']
+                    ]);
+                    
+                    $this->refreshFormData([
+                        'status',
+                        'maintenance_term'
+                    ]);
+                    
+                    Notification::make()
+                        ->title('Ticket closed successfully!')
+                        ->success()
+                        ->send();
+                })
+                ->modalHeading('Close Ticket')
+                ->modalDescription('Select a maintenance term and close this ticket.')
+                ->modalSubmitActionLabel('Close Ticket')
+                ->visible(fn (Ticket $record): bool => $record->status !== TicketStatus::CLOSED),
         ];
 
         // Add supervisor close ticket action
