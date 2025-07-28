@@ -45,6 +45,14 @@ class MaterialRequestResource extends Resource
                                             if ($currentUser && $currentUser->isBuildingSupervisor()) {
                                                 $supervisedBuildingIds = $currentUser->supervisedBuildings()->pluck('id');
                                                 $query->whereIn('building_id', $supervisedBuildingIds);
+                                            } elseif ($currentUser && $currentUser->isCategorySupervisor()) {
+                                                $supervisedCategoryIds = $currentUser->supervisedCategories()->pluck('id');
+                                                if ($supervisedCategoryIds->isNotEmpty()) {
+                                                    $query->whereIn('category_id', $supervisedCategoryIds);
+                                                } else {
+                                                    // If user doesn't supervise any categories, they shouldn't see any tickets
+                                                    $query->whereRaw('1 = 0');
+                                                }
                                             }
                                             
                                             return $query->with(['requester', 'building', 'category']);
@@ -110,6 +118,17 @@ class MaterialRequestResource extends Resource
                     $query->whereHas('ticket', function ($ticketQuery) use ($supervisedBuildingIds) {
                         $ticketQuery->whereIn('building_id', $supervisedBuildingIds);
                     });
+                } elseif ($currentUser && $currentUser->isCategorySupervisor()) {
+                    // Category supervisors see only material requests from categories they supervise
+                    $supervisedCategoryIds = $currentUser->supervisedCategories()->pluck('id');
+                    if ($supervisedCategoryIds->isNotEmpty()) {
+                        $query->whereHas('ticket', function ($ticketQuery) use ($supervisedCategoryIds) {
+                            $ticketQuery->whereIn('category_id', $supervisedCategoryIds);
+                        });
+                    } else {
+                        // If user doesn't supervise any categories, they shouldn't see any material requests
+                        $query->whereRaw('1 = 0');
+                    }
                 }
                 
                 return $query->with([
@@ -289,6 +308,16 @@ class MaterialRequestResource extends Resource
             $query->whereHas('ticket', function ($ticketQuery) use ($supervisedBuildingIds) {
                 $ticketQuery->whereIn('building_id', $supervisedBuildingIds);
             });
+        } elseif ($currentUser && $currentUser->isCategorySupervisor()) {
+            $supervisedCategoryIds = $currentUser->supervisedCategories()->pluck('id');
+            if ($supervisedCategoryIds->isNotEmpty()) {
+                $query->whereHas('ticket', function ($ticketQuery) use ($supervisedCategoryIds) {
+                    $ticketQuery->whereIn('category_id', $supervisedCategoryIds);
+                });
+            } else {
+                // If user doesn't supervise any categories, they shouldn't see any material requests
+                $query->whereRaw('1 = 0');
+            }
         }
 
         return $query;
