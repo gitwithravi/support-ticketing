@@ -6,6 +6,7 @@ use App\Actions\Tickets\UpdateTicketPriority;
 use App\Actions\Tickets\UpdateTicketStatus;
 use App\Enums\Tickets\TicketPriority;
 use App\Enums\Tickets\TicketStatus;
+use App\Filament\Exports\TicketExporter;
 use App\Filament\Resources\TicketResource;
 use App\Models\Ticket;
 use Closure;
@@ -80,6 +81,9 @@ class ListTickets extends ListRecords
                         ->success()
                         ->send();
                 }),
+            Actions\ExportAction::make()
+                ->exporter(TicketExporter::class)
+                ->icon('heroicon-o-arrow-down-tray'),
             Actions\CreateAction::make()
                 ->icon('heroicon-o-plus'),
         ];
