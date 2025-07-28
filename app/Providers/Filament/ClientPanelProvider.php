@@ -67,11 +67,11 @@ class ClientPanelProvider extends PanelProvider
             ->brandLogo(fn () => Auth::guard('client')->guest()
                 ? $brandLogoBlack
                 : $brandLogoWhite)
-            ->brandLogoHeight('2rem')
+            ->brandLogoHeight('3.5rem')
             ->topNavigation()
             ->navigationItems([
                 NavigationItem::make('submitATicket')
-                    ->url('/', shouldOpenInNewTab: true)
+                    ->url('/client/tickets/create', shouldOpenInNewTab: true)
                     ->icon('heroicon-o-bolt')
                     ->label(__('Submit a ticket'))
                     ->sort(3),
