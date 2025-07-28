@@ -53,15 +53,16 @@ class CreateTicket extends CreateRecord
                             ->label('Sub Category')
                             ->options(function (Get $get) {
                                 $categoryId = $get('category_id');
-                                if (!$categoryId) {
+                                if (! $categoryId) {
                                     return [];
                                 }
+
                                 return SubCategory::where('category_id', $categoryId)->pluck('name', 'id');
                             })
                             ->required()
                             ->searchable()
                             ->preload()
-                            ->disabled(fn (Get $get) => !$get('category_id')),
+                            ->disabled(fn (Get $get) => ! $get('category_id')),
 
                         TextInput::make('subject')
                             ->label('Subject')
@@ -89,7 +90,7 @@ class CreateTicket extends CreateRecord
         $data['requester_id'] = Auth::guard('client')->id();
         $data['status'] = TicketStatus::OPEN;
         $data['type'] = TicketType::TASK;
-        
+
         return $data;
     }
 

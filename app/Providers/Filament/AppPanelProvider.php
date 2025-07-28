@@ -3,13 +3,13 @@
 namespace App\Providers\Filament;
 
 use App\Filament\AvatarProviders\GravatarProvider;
-use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
 use App\Filament\Pages\Auth\EditProfile;
 use App\Filament\Widgets\StatsOverview;
 use App\Filament\Widgets\TicketPriorityChart;
 use App\Filament\Widgets\TicketTypeChart;
 use App\Http\Middleware\EnsureUserIsActive;
 use App\Settings\GeneralSettings;
+use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
 use Filament\FontProviders\GoogleFontProvider;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;

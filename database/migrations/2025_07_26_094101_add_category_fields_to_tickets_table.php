@@ -17,7 +17,7 @@ return new class extends Migration
                 ->after('group_id')
                 ->constrained()
                 ->nullOnDelete();
-            
+
             $table->foreignUlid('sub_category_id')
                 ->nullable()
                 ->after('category_id')
@@ -34,7 +34,7 @@ return new class extends Migration
         Schema::table('tickets', function (Blueprint $table) {
             $table->dropForeign(['category_id']);
             $table->dropColumn('category_id');
-            
+
             $table->dropForeign(['sub_category_id']);
             $table->dropColumn('sub_category_id');
         });

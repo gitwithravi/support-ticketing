@@ -7,7 +7,6 @@ use App\Filament\Clusters\Settings;
 use App\Filament\Clusters\Settings\Resources\UserResource\Pages;
 use App\Filament\Clusters\Settings\Resources\UserResource\Pages\EditUser;
 use App\Filament\Clusters\Settings\Resources\UserResource\RelationManagers\TokensRelationManager;
-use App\Models\Role;
 use App\Models\User;
 use Filament\Forms;
 use Filament\Forms\Components\Actions\Action;
@@ -51,8 +50,7 @@ class UserResource extends Resource
                                 ->default(UserType::AGENT->value)
                                 ->required()
                                 ->live()
-                                ->helperText(fn (Forms\Get $get): ?string => 
-                                    $get('user_type') ? UserType::from($get('user_type'))->getDescription() : null
+                                ->helperText(fn (Forms\Get $get): ?string => $get('user_type') ? UserType::from($get('user_type'))->getDescription() : null
                                 ),
                             Forms\Components\Toggle::make('send_welcome_email')
                                 ->label('Send welcome email')
@@ -180,14 +178,14 @@ class UserResource extends Resource
                     ->options(UserType::options())
                     ->searchable()
                     ->preload(),
-                
+
                 Tables\Filters\SelectFilter::make('roles')
                     ->label(__('Roles'))
                     ->relationship('roles', 'name')
                     ->multiple()
                     ->preload()
                     ->searchable(),
-                
+
                 Tables\Filters\TernaryFilter::make('is_active')
                     ->label(__('Active'))
                     ->boolean()

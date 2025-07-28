@@ -39,7 +39,7 @@ test('user type enum returns correct descriptions', function () {
 
 test('user type enum options method returns correct array', function () {
     $options = UserType::options();
-    
+
     expect($options)->toBeArray()
         ->and($options)->toHaveKey('admin', 'Admin')
         ->and($options)->toHaveKey('agent', 'Agent')

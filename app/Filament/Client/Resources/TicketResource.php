@@ -8,8 +8,6 @@ use App\Enums\Tickets\TicketType;
 use App\Filament\Client\Resources\TicketResource\Pages;
 use App\Filament\Forms\Components\TicketComments;
 use App\Filament\Resources\TicketResource\RelationManagers\FieldsRelationManager;
-use App\Models\Building;
-use App\Models\Category;
 use App\Models\Ticket;
 use Filament\Forms;
 use Filament\Forms\Components\Livewire;
@@ -133,13 +131,14 @@ class TicketResource extends Resource
                     ->copyMessageDuration(1500)
                     ->searchable()
                     ->sortable(),
-                    
+
                 Tables\Columns\TextColumn::make('subject')
                     ->label(__('Subject'))
                     ->searchable()
                     ->limit(50)
                     ->tooltip(function (Tables\Columns\TextColumn $column): ?string {
                         $state = $column->getState();
+
                         return strlen($state) > 50 ? $state : null;
                     }),
 

@@ -106,7 +106,7 @@ class Building extends Model
      */
     public function hasLocation(): bool
     {
-        return !is_null($this->latitude) && !is_null($this->longitude);
+        return ! is_null($this->latitude) && ! is_null($this->longitude);
     }
 
     /**

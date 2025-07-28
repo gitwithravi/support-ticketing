@@ -32,7 +32,7 @@ test('ticket priority enum can be created from string', function () {
 
 test('ticket priority enum has all expected cases', function () {
     $cases = TicketPriority::cases();
-    
+
     expect($cases)->toHaveCount(4)
         ->and($cases)->toContain(TicketPriority::LOW)
         ->and($cases)->toContain(TicketPriority::NORMAL)

@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('responsible_reg_nos');
             $table->boolean('processed')->default(false);
             $table->timestamps();
-            
+
             $table->foreign('ticket_id')->references('id')->on('tickets')->onDelete('cascade');
         });
     }

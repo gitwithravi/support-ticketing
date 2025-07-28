@@ -19,7 +19,7 @@ class BuildingFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => fake()->company() . ' Building',
+            'name' => fake()->company().' Building',
             'code' => fake()->unique()->bothify('BLD-###'),
             'description' => fake()->sentence(),
             'address' => fake()->address(),

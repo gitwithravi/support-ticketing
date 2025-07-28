@@ -16,7 +16,7 @@ return new class extends Migration
                 ->default('agent')
                 ->after('email')
                 ->comment('User role: admin, agent, category_supervisor, building_supervisor');
-            
+
             // Add index for performance when filtering by user type
             $table->index('user_type');
         });

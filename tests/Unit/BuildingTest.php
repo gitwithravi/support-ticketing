@@ -22,12 +22,12 @@ test('building has correct fillable attributes', function () {
         'longitude',
     ];
 
-    expect((new Building())->getFillable())->toBe($fillable);
+    expect((new Building)->getFillable())->toBe($fillable);
 });
 
 test('building can be created with valid attributes', function () {
     $supervisor = User::factory()->create();
-    
+
     $building = Building::factory()->create([
         'name' => 'Main Office',
         'code' => 'MOB-001',
@@ -115,7 +115,7 @@ test('building has location returns true when coordinates are set', function () 
         'latitude' => 40.7128,
         'longitude' => -74.0060,
     ]);
-    
+
     $buildingWithoutLocation = Building::factory()->create([
         'latitude' => null,
         'longitude' => null,
@@ -127,7 +127,7 @@ test('building has location returns true when coordinates are set', function () 
 
 test('building age attribute calculates correctly', function () {
     $currentYear = now()->year;
-    
+
     $building = Building::factory()->create(['construction_year' => $currentYear - 5]);
     $buildingNoYear = Building::factory()->create(['construction_year' => null]);
 

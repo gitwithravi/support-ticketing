@@ -39,7 +39,7 @@ class BuildingResource extends Resource
                                             ->required()
                                             ->maxLength(255)
                                             ->placeholder('e.g., Engineering Building'),
-                                        
+
                                         Forms\Components\TextInput::make('code')
                                             ->label(__('Building Code'))
                                             ->required()
@@ -51,20 +51,20 @@ class BuildingResource extends Resource
                                             ->live(onBlur: true)
                                             ->afterStateUpdated(fn ($state, $set) => $set('code', strtoupper($state))),
                                     ]),
-                                
+
                                 Forms\Components\Textarea::make('description')
                                     ->label(__('Description'))
                                     ->maxLength(65535)
                                     ->placeholder('Brief description of the building purpose and facilities')
                                     ->columnSpanFull(),
-                                
+
                                 Forms\Components\Textarea::make('address')
                                     ->label(__('Address'))
                                     ->maxLength(65535)
                                     ->placeholder('Physical address of the building')
                                     ->columnSpanFull(),
                             ]),
-                        
+
                         Forms\Components\Section::make(__('Building Details'))
                             ->schema([
                                 Forms\Components\Select::make('building_type')
@@ -73,7 +73,7 @@ class BuildingResource extends Resource
                                     ->default(BuildingType::ACADEMIC_BLOCK->value)
                                     ->required()
                                     ->searchable(),
-                                
+
                                 Forms\Components\Grid::make()
                                     ->schema([
                                         Forms\Components\TextInput::make('floors')
@@ -82,13 +82,13 @@ class BuildingResource extends Resource
                                             ->default(1)
                                             ->minValue(1)
                                             ->maxValue(50),
-                                        
+
                                         Forms\Components\TextInput::make('total_rooms')
                                             ->label(__('Total Rooms'))
                                             ->numeric()
                                             ->minValue(0)
                                             ->placeholder('Optional'),
-                                        
+
                                         Forms\Components\TextInput::make('construction_year')
                                             ->label(__('Construction Year'))
                                             ->numeric()
@@ -97,7 +97,7 @@ class BuildingResource extends Resource
                                             ->placeholder('e.g., 1995'),
                                     ]),
                             ]),
-                        
+
                         Forms\Components\Section::make(__('Location'))
                             ->schema([
                                 Forms\Components\Grid::make()
@@ -107,7 +107,7 @@ class BuildingResource extends Resource
                                             ->numeric()
                                             ->step(0.00000001)
                                             ->placeholder('e.g., 40.7128'),
-                                        
+
                                         Forms\Components\TextInput::make('longitude')
                                             ->label(__('Longitude'))
                                             ->numeric()
@@ -116,7 +116,7 @@ class BuildingResource extends Resource
                                     ]),
                             ])
                             ->collapsible(),
-                        
+
                         Forms\Components\Section::make(__('Contact Information'))
                             ->schema([
                                 Forms\Components\KeyValue::make('contact_info')
@@ -133,7 +133,7 @@ class BuildingResource extends Resource
                             ])
                             ->collapsible(),
                     ])->columnSpan(['lg' => 2]),
-                
+
                 Forms\Components\Group::make()
                     ->schema([
                         Forms\Components\Section::make(__('Supervisor Assignment'))
@@ -171,7 +171,7 @@ class BuildingResource extends Resource
                                     ])
                                     ->createOptionModalHeading(__('Create Building Supervisor')),
                             ]),
-                        
+
                         Forms\Components\Section::make(__('Status'))
                             ->schema([
                                 Forms\Components\Toggle::make('is_active')
@@ -179,7 +179,7 @@ class BuildingResource extends Resource
                                     ->default(true)
                                     ->helperText(__('Inactive buildings will not appear in ticket creation forms')),
                             ]),
-                        
+
                         Forms\Components\Section::make(__('Metadata'))
                             ->schema([
                                 Forms\Components\Placeholder::make('supervisor.name')
@@ -188,11 +188,11 @@ class BuildingResource extends Resource
 
                                 Forms\Components\Placeholder::make('tickets_count')
                                     ->label(__('Total Tickets'))
-                                    ->content(fn (?Building $record): string => $record ? $record->tickets()->count() . ' tickets' : '0 tickets'),
+                                    ->content(fn (?Building $record): string => $record ? $record->tickets()->count().' tickets' : '0 tickets'),
 
                                 Forms\Components\Placeholder::make('age')
                                     ->label(__('Building Age'))
-                                    ->content(fn (?Building $record): string => $record?->age ? $record->age . ' years old' : __('Unknown')),
+                                    ->content(fn (?Building $record): string => $record?->age ? $record->age.' years old' : __('Unknown')),
 
                                 Forms\Components\Placeholder::make('created_at')
                                     ->label(__('Created at'))
@@ -216,20 +216,20 @@ class BuildingResource extends Resource
                     ->sortable()
                     ->weight('bold')
                     ->color('primary'),
-                
+
                 Tables\Columns\TextColumn::make('name')
                     ->label(__('Name'))
                     ->searchable()
                     ->sortable()
                     ->description(fn (Building $record): ?string => $record->description),
-                
+
                 Tables\Columns\TextColumn::make('building_type')
                     ->label(__('Type'))
                     ->badge()
                     ->color(fn (BuildingType $state): string => $state->getColor())
                     ->icon(fn (BuildingType $state): string => $state->getIcon())
                     ->sortable(),
-                
+
                 Tables\Columns\TextColumn::make('supervisor.name')
                     ->label(__('Supervisor'))
                     ->searchable()
@@ -238,29 +238,29 @@ class BuildingResource extends Resource
                     ->badge()
                     ->color('success')
                     ->icon('heroicon-o-user'),
-                
+
                 Tables\Columns\TextColumn::make('floors')
                     ->label(__('Floors'))
                     ->alignCenter()
                     ->sortable(),
-                
+
                 Tables\Columns\TextColumn::make('tickets_count')
                     ->label(__('Tickets'))
                     ->counts('tickets')
                     ->alignCenter()
                     ->badge()
                     ->color('info'),
-                
+
                 Tables\Columns\IconColumn::make('is_active')
                     ->label(__('Active'))
                     ->boolean()
                     ->alignCenter(),
-                
+
                 Tables\Columns\TextColumn::make('construction_year')
                     ->label(__('Built'))
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
-                
+
                 Tables\Columns\TextColumn::make('created_at')
                     ->label(__('Created at'))
                     ->dateTime()
@@ -273,7 +273,7 @@ class BuildingResource extends Resource
                     ->options(BuildingType::options())
                     ->searchable()
                     ->preload(),
-                
+
                 Tables\Filters\SelectFilter::make('building_supervisor_id')
                     ->label(__('Supervisor'))
                     ->relationship(
@@ -284,19 +284,19 @@ class BuildingResource extends Resource
                     ->searchable()
                     ->preload()
                     ->placeholder(__('All supervisors')),
-                
+
                 Tables\Filters\TernaryFilter::make('is_active')
                     ->label(__('Active'))
                     ->boolean()
                     ->trueLabel(__('Active buildings'))
                     ->falseLabel(__('Inactive buildings'))
                     ->native(false),
-                
+
                 Tables\Filters\Filter::make('unassigned')
                     ->label(__('Unassigned Buildings'))
                     ->query(fn ($query) => $query->whereNull('building_supervisor_id'))
                     ->toggle(),
-                
+
                 Tables\Filters\Filter::make('has_location')
                     ->label(__('Has GPS Coordinates'))
                     ->query(fn ($query) => $query->whereNotNull('latitude')->whereNotNull('longitude'))
@@ -315,7 +315,7 @@ class BuildingResource extends Resource
                 Tables\Grouping\Group::make('building_type')
                     ->label(__('Building Type'))
                     ->collapsible(),
-                
+
                 Tables\Grouping\Group::make('supervisor.name')
                     ->label(__('Supervisor'))
                     ->collapsible(),

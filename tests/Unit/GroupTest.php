@@ -10,7 +10,7 @@ test('group has correct fillable attributes', function () {
         'category_id',
     ];
 
-    expect((new Group())->getFillable())->toBe($fillable);
+    expect((new Group)->getFillable())->toBe($fillable);
 });
 
 test('group can be created with valid attributes', function () {
@@ -27,7 +27,7 @@ test('group can be created with valid attributes', function () {
 test('group belongs to many users', function () {
     $group = Group::factory()->create();
     $users = User::factory()->count(3)->create();
-    
+
     $group->users()->attach($users->pluck('id'));
 
     expect($group->users)->toHaveCount(3)

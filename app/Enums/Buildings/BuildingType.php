@@ -6,7 +6,7 @@ use Filament\Support\Contracts\HasColor;
 use Filament\Support\Contracts\HasIcon;
 use Filament\Support\Contracts\HasLabel;
 
-enum BuildingType: string implements HasLabel, HasColor, HasIcon
+enum BuildingType: string implements HasColor, HasIcon, HasLabel
 {
     case ACADEMIC_BLOCK = 'academic_block';
     case BOYS_HOSTEL = 'boys_hostel';
@@ -27,7 +27,7 @@ enum BuildingType: string implements HasLabel, HasColor, HasIcon
         };
     }
 
-    public function getColor(): string | array | null
+    public function getColor(): string|array|null
     {
         return match ($this) {
             self::ACADEMIC_BLOCK => 'primary',
@@ -57,7 +57,7 @@ enum BuildingType: string implements HasLabel, HasColor, HasIcon
     public static function options(): array
     {
         return collect(self::cases())
-            ->mapWithKeys(fn($case) => [$case->value => $case->getLabel()])
+            ->mapWithKeys(fn ($case) => [$case->value => $case->getLabel()])
             ->toArray();
     }
 }

@@ -35,12 +35,12 @@ class Register extends BaseRegister
     protected function getUserData(): array
     {
         $data = parent::getUserData();
-        
+
         // Set default timezone and locale
         $data['timezone'] = 'Asia/Calcutta';
         $data['locale'] = 'en';
         $data['is_active'] = true;
-        
+
         return $data;
     }
 

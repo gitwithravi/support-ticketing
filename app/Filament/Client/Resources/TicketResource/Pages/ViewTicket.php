@@ -139,7 +139,7 @@ class ViewTicket extends ViewRecord
                                     ->label('Escalated')
                                     ->content(fn (Ticket $record): string => $record->is_escalated ? 'Yes' : 'No'),
                             ])
-                            ->hidden(fn (Ticket $record): bool => !$record->is_escalated),
+                            ->hidden(fn (Ticket $record): bool => ! $record->is_escalated),
                     ])
                     ->columnSpan(['lg' => 1]),
             ])

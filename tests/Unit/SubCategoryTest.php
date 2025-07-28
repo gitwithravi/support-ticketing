@@ -15,12 +15,12 @@ test('sub category has correct fillable attributes', function () {
         'sort_order',
     ];
 
-    expect((new SubCategory())->getFillable())->toBe($fillable);
+    expect((new SubCategory)->getFillable())->toBe($fillable);
 });
 
 test('sub category can be created with valid attributes', function () {
     $category = Category::factory()->create();
-    
+
     $subCategory = SubCategory::factory()->create([
         'category_id' => $category->id,
         'name' => 'Laptop Issues',
@@ -58,7 +58,7 @@ test('sub category has many tickets', function () {
 
 test('sub category active scope returns only active sub categories', function () {
     $initialActiveCount = SubCategory::active()->count();
-    
+
     $createdActive = SubCategory::factory()->create(['is_active' => true]);
     SubCategory::factory()->create(['is_active' => false]);
 

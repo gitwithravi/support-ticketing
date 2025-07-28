@@ -13,7 +13,7 @@ test('user has correct fillable attributes', function () {
         'is_active',
     ];
 
-    expect((new User())->getFillable())->toBe($fillable);
+    expect((new User)->getFillable())->toBe($fillable);
 });
 
 test('user has correct hidden attributes', function () {
@@ -22,7 +22,7 @@ test('user has correct hidden attributes', function () {
         'remember_token',
     ];
 
-    expect((new User())->getHidden())->toBe($hidden);
+    expect((new User)->getHidden())->toBe($hidden);
 });
 
 test('user can be created with valid attributes', function () {
@@ -43,7 +43,7 @@ test('user can be created with valid attributes', function () {
 test('user belongs to many groups', function () {
     $user = User::factory()->create();
     $groups = Group::factory()->count(2)->create();
-    
+
     $user->groups()->attach($groups->pluck('id'));
 
     expect($user->groups)->toHaveCount(2)
@@ -79,7 +79,7 @@ test('user can check if handles tickets', function () {
 test('user scope of type filters correctly', function () {
     $initialAgentCount = User::ofType(UserType::AGENT)->count();
     $initialAdminCount = User::ofType(UserType::ADMIN)->count();
-    
+
     User::factory()->create(['user_type' => UserType::ADMIN]);
     User::factory()->create(['user_type' => UserType::AGENT]);
     User::factory()->create(['user_type' => UserType::CATEGORY_SUPERVISOR]);
@@ -104,7 +104,7 @@ test('user scope admins returns only admin users', function () {
 
 test('user scope agents returns only agent users', function () {
     $initialAgentCount = User::agents()->count();
-    
+
     User::factory()->create(['user_type' => UserType::ADMIN]);
     $createdAgent = User::factory()->create(['user_type' => UserType::AGENT]);
     User::factory()->create(['user_type' => UserType::CATEGORY_SUPERVISOR]);
@@ -118,7 +118,7 @@ test('user scope agents returns only agent users', function () {
 
 test('user scope supervisors returns supervisor users', function () {
     $initialSupervisorCount = User::supervisors()->count();
-    
+
     User::factory()->create(['user_type' => UserType::ADMIN]);
     User::factory()->create(['user_type' => UserType::AGENT]);
     User::factory()->create(['user_type' => UserType::CATEGORY_SUPERVISOR]);
@@ -153,6 +153,6 @@ test('user can check if is category supervisor', function () {
 
 test('user has supervised categories relationship', function () {
     $supervisor = User::factory()->create(['user_type' => UserType::CATEGORY_SUPERVISOR]);
-    
+
     expect($supervisor->supervisedCategories())->toBeInstanceOf(\Illuminate\Database\Eloquent\Relations\HasMany::class);
 });

@@ -19,6 +19,8 @@ return new class extends Migration
             $table->string('build_supervisor_status')->default('open')->after('cat_supervisor_status')->comment('Status from building supervisor perspective: open, close');
             $table->foreignUlid('verified_by')->nullable()->after('build_supervisor_status')->constrained('users')->nullOnDelete()->comment('User who verified/closed the ticket');
             $table->datetime('ticket_closing_date')->nullable()->after('verified_by')->comment('Date when ticket was closed');
+            $table->timestamp('verification_timestamp')->nullable()->after('ticket_closing_date');
+            $table->string('verification_status')->nullable()->after('verification_timestamp');
         });
     }
 
@@ -31,12 +33,12 @@ return new class extends Migration
             $table->dropForeign(['verified_by']);
             $table->dropColumn([
                 'room_no',
-                'ticket_description', 
+                'ticket_description',
                 'user_status',
                 'cat_supervisor_status',
                 'build_supervisor_status',
                 'verified_by',
-                'ticket_closing_date'
+                'ticket_closing_date',
             ]);
         });
     }

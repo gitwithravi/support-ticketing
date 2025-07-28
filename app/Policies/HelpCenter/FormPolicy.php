@@ -2,8 +2,8 @@
 
 namespace App\Policies\HelpCenter;
 
-use App\Models\User;
 use App\Models\HelpCenter\Form;
+use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class FormPolicy

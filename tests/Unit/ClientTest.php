@@ -16,7 +16,7 @@ test('client has correct fillable attributes', function () {
         'is_active',
     ];
 
-    expect((new Client())->getFillable())->toBe($fillable);
+    expect((new Client)->getFillable())->toBe($fillable);
 });
 
 test('client has correct hidden attributes', function () {
@@ -25,7 +25,7 @@ test('client has correct hidden attributes', function () {
         'remember_token',
     ];
 
-    expect((new Client())->getHidden())->toBe($hidden);
+    expect((new Client)->getHidden())->toBe($hidden);
 });
 
 test('client can be created with valid attributes', function () {
@@ -56,7 +56,7 @@ test('client has many tickets', function () {
 test('client belongs to many groups', function () {
     $client = Client::factory()->create();
     $groups = Group::factory()->count(2)->create();
-    
+
     $client->groups()->attach($groups->pluck('id'));
 
     expect($client->groups)->toHaveCount(2)

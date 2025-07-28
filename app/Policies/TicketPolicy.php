@@ -2,9 +2,9 @@
 
 namespace App\Policies;
 
-use App\Models\User;
 use App\Models\Client;
 use App\Models\Ticket;
+use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class TicketPolicy
@@ -19,7 +19,7 @@ class TicketPolicy
         if ($user instanceof Client) {
             return true; // Clients can view their own tickets
         }
-        
+
         return $user->can('view_any_ticket');
     }
 
@@ -31,7 +31,7 @@ class TicketPolicy
         if ($user instanceof Client) {
             return $ticket->requester_id === $user->id;
         }
-        
+
         return $user->can('view_ticket');
     }
 
@@ -43,7 +43,7 @@ class TicketPolicy
         if ($user instanceof Client) {
             return true; // Clients can create tickets
         }
-        
+
         return $user->can('create_ticket');
     }
 
@@ -55,7 +55,7 @@ class TicketPolicy
         if ($user instanceof Client) {
             return false; // Clients cannot update tickets
         }
-        
+
         return $user->can('update_ticket');
     }
 
@@ -67,7 +67,7 @@ class TicketPolicy
         if ($user instanceof Client) {
             return false; // Clients cannot delete tickets
         }
-        
+
         return $user->can('delete_ticket');
     }
 
@@ -79,7 +79,7 @@ class TicketPolicy
         if ($user instanceof Client) {
             return false; // Clients cannot bulk delete tickets
         }
-        
+
         return $user->can('delete_any_ticket');
     }
 
@@ -91,7 +91,7 @@ class TicketPolicy
         if ($user instanceof Client) {
             return false; // Clients cannot force delete tickets
         }
-        
+
         return $user->can('force_delete_ticket');
     }
 
@@ -103,7 +103,7 @@ class TicketPolicy
         if ($user instanceof Client) {
             return false; // Clients cannot bulk force delete tickets
         }
-        
+
         return $user->can('force_delete_any_ticket');
     }
 
@@ -115,7 +115,7 @@ class TicketPolicy
         if ($user instanceof Client) {
             return false; // Clients cannot restore tickets
         }
-        
+
         return $user->can('restore_ticket');
     }
 
@@ -127,7 +127,7 @@ class TicketPolicy
         if ($user instanceof Client) {
             return false; // Clients cannot bulk restore tickets
         }
-        
+
         return $user->can('restore_any_ticket');
     }
 
@@ -139,7 +139,7 @@ class TicketPolicy
         if ($user instanceof Client) {
             return false; // Clients cannot replicate tickets
         }
-        
+
         return $user->can('replicate_ticket');
     }
 
@@ -151,7 +151,7 @@ class TicketPolicy
         if ($user instanceof Client) {
             return false; // Clients cannot reorder tickets
         }
-        
+
         return $user->can('reorder_ticket');
     }
 }

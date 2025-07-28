@@ -6,7 +6,7 @@ use Filament\Support\Contracts\HasColor;
 use Filament\Support\Contracts\HasIcon;
 use Filament\Support\Contracts\HasLabel;
 
-enum UserType: string implements HasLabel, HasColor, HasIcon
+enum UserType: string implements HasColor, HasIcon, HasLabel
 {
     case ADMIN = 'admin';
     case AGENT = 'agent';
@@ -23,7 +23,7 @@ enum UserType: string implements HasLabel, HasColor, HasIcon
         };
     }
 
-    public function getColor(): string | array | null
+    public function getColor(): string|array|null
     {
         return match ($this) {
             self::ADMIN => 'danger',
@@ -59,7 +59,7 @@ enum UserType: string implements HasLabel, HasColor, HasIcon
     public static function options(): array
     {
         return collect(self::cases())
-            ->mapWithKeys(fn($case) => [$case->value => $case->getLabel()])
+            ->mapWithKeys(fn ($case) => [$case->value => $case->getLabel()])
             ->toArray();
     }
 

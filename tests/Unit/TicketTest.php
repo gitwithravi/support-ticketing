@@ -34,7 +34,7 @@ test('ticket has correct fillable attributes', function () {
         'ticket_closing_date',
     ];
 
-    expect((new Ticket())->getFillable())->toBe($fillable);
+    expect((new Ticket)->getFillable())->toBe($fillable);
 });
 
 test('ticket can be created with valid attributes', function () {

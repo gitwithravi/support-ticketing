@@ -6,7 +6,6 @@ use App\Enums\Users\UserType;
 use App\Filament\Resources\CategoryResource\Pages;
 use App\Filament\Resources\CategoryResource\RelationManagers\SubCategoriesRelationManager;
 use App\Models\Category;
-use App\Models\User;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -37,18 +36,18 @@ class CategoryResource extends Resource
                                     ->label(__('Name'))
                                     ->required()
                                     ->maxLength(255),
-                                
+
                                 Forms\Components\Textarea::make('description')
                                     ->label(__('Description'))
                                     ->maxLength(65535)
                                     ->columnSpanFull(),
-                                
+
                                 Forms\Components\Grid::make()
                                     ->schema([
                                         Forms\Components\ColorPicker::make('color')
                                             ->label(__('Color'))
                                             ->default('#6366f1'),
-                                        
+
                                         Forms\Components\Select::make('icon')
                                             ->label(__('Icon'))
                                             ->options([
@@ -66,19 +65,19 @@ class CategoryResource extends Resource
                                             ->default('heroicon-o-folder')
                                             ->searchable(),
                                     ]),
-                                
+
                                 Forms\Components\Grid::make()
                                     ->schema([
                                         Forms\Components\Toggle::make('is_active')
                                             ->label(__('Active'))
                                             ->default(true),
-                                        
+
                                         Forms\Components\TextInput::make('sort_order')
                                             ->label(__('Sort Order'))
                                             ->numeric()
                                             ->default(0),
                                     ]),
-                                
+
                                 Forms\Components\Select::make('category_supervisor_id')
                                     ->label(__('Category Supervisor'))
                                     ->relationship(
@@ -113,7 +112,7 @@ class CategoryResource extends Resource
                                     ->createOptionModalHeading(__('Create Category Supervisor')),
                             ]),
                     ])->columnSpan(['lg' => 2]),
-                
+
                 Forms\Components\Group::make()
                     ->schema([
                         Forms\Components\Section::make(__('Metadata'))
@@ -140,23 +139,24 @@ class CategoryResource extends Resource
             ->columns([
                 Tables\Columns\ColorColumn::make('color')
                     ->label(__('Color')),
-                
+
                 Tables\Columns\TextColumn::make('name')
                     ->label(__('Name'))
                     ->searchable()
                     ->sortable(),
-                
+
                 Tables\Columns\TextColumn::make('description')
                     ->label(__('Description'))
                     ->limit(50)
                     ->tooltip(function (Tables\Columns\TextColumn $column): ?string {
                         $state = $column->getState();
+
                         return strlen($state) > 50 ? $state : null;
                     }),
-                
+
                 Tables\Columns\IconColumn::make('icon')
                     ->label(__('Icon')),
-                
+
                 Tables\Columns\TextColumn::make('supervisor.name')
                     ->label(__('Supervisor'))
                     ->searchable()
@@ -165,29 +165,29 @@ class CategoryResource extends Resource
                     ->badge()
                     ->color('warning')
                     ->icon('heroicon-o-user'),
-                
+
                 Tables\Columns\IconColumn::make('is_active')
                     ->label(__('Active'))
                     ->boolean(),
-                
+
                 Tables\Columns\TextColumn::make('sort_order')
                     ->label(__('Sort Order'))
                     ->sortable(),
-                
+
                 Tables\Columns\TextColumn::make('sub_categories_count')
                     ->label(__('Sub Categories'))
                     ->counts('subCategories'),
-                
+
                 Tables\Columns\TextColumn::make('tickets_count')
                     ->label(__('Tickets'))
                     ->counts('tickets'),
-                
+
                 Tables\Columns\TextColumn::make('created_at')
                     ->label(__('Created at'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
-                
+
                 Tables\Columns\TextColumn::make('updated_at')
                     ->label(__('Updated at'))
                     ->dateTime()
@@ -205,14 +205,14 @@ class CategoryResource extends Resource
                     ->searchable()
                     ->preload()
                     ->placeholder(__('All supervisors')),
-                
+
                 Tables\Filters\TernaryFilter::make('is_active')
                     ->label(__('Active'))
                     ->boolean()
                     ->trueLabel(__('Active categories'))
                     ->falseLabel(__('Inactive categories'))
                     ->native(false),
-                
+
                 Tables\Filters\Filter::make('unassigned')
                     ->label(__('Unassigned Categories'))
                     ->query(fn ($query) => $query->whereNull('category_supervisor_id'))

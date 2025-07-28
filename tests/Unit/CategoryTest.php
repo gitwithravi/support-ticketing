@@ -16,12 +16,12 @@ test('category has correct fillable attributes', function () {
         'category_supervisor_id',
     ];
 
-    expect((new Category())->getFillable())->toBe($fillable);
+    expect((new Category)->getFillable())->toBe($fillable);
 });
 
 test('category can be created with valid attributes', function () {
     $supervisor = User::factory()->create();
-    
+
     $category = Category::factory()->create([
         'name' => 'Hardware Issues',
         'description' => 'Issues related to hardware',
@@ -67,7 +67,7 @@ test('category belongs to supervisor', function () {
 
 test('category active scope returns only active categories', function () {
     $initialActiveCount = Category::active()->count();
-    
+
     $createdActive = Category::factory()->create(['is_active' => true]);
     Category::factory()->create(['is_active' => false]);
 

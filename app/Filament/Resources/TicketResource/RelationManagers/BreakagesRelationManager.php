@@ -2,7 +2,6 @@
 
 namespace App\Filament\Resources\TicketResource\RelationManagers;
 
-use App\Models\Breakage;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
@@ -24,12 +23,12 @@ class BreakagesRelationManager extends RelationManager
                     ->rows(4)
                     ->required()
                     ->columnSpanFull(),
-                
+
                 Forms\Components\TextInput::make('responsible_reg_nos')
                     ->label('Responsible Registration Numbers')
                     ->required()
                     ->maxLength(255),
-                
+
                 Forms\Components\Toggle::make('processed')
                     ->label('Processed')
                     ->default(false),
@@ -45,22 +44,22 @@ class BreakagesRelationManager extends RelationManager
                     ->label('Description')
                     ->limit(50)
                     ->searchable(),
-                
+
                 Tables\Columns\TextColumn::make('responsible_reg_nos')
                     ->label('Responsible Reg Nos')
                     ->searchable(),
-                
+
                 Tables\Columns\IconColumn::make('processed')
                     ->label('Processed')
                     ->boolean()
                     ->sortable(),
-                
+
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Created')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
-                
+
                 Tables\Columns\TextColumn::make('updated_at')
                     ->label('Updated')
                     ->dateTime()

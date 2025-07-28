@@ -31,7 +31,7 @@ return new class extends Migration
             $table->decimal('latitude', 10, 8)->nullable();
             $table->decimal('longitude', 11, 8)->nullable();
             $table->timestamps();
-            
+
             // Add indexes for performance
             $table->index('building_type');
             $table->index('is_active');
