@@ -89,22 +89,19 @@ class MaterialRequestResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(fn ($query) => $query->with([
+                'ticket.building',
+                'ticket.category', 
+                'ticket.subCategory',
+                'createdBy',
+                'processedBy'
+            ]))
             ->columns([
                 Tables\Columns\TextColumn::make('ticket.ticket_id')
                     ->label('Ticket ID')
                     ->searchable()
                     ->sortable()
                     ->copyable(),
-
-                Tables\Columns\TextColumn::make('ticket.subject')
-                    ->label('Ticket Subject')
-                    ->limit(30)
-                    ->searchable()
-                    ->tooltip(function (Tables\Columns\TextColumn $column): ?string {
-                        $state = $column->getState();
-
-                        return strlen($state) > 30 ? $state : null;
-                    }),
 
                 Tables\Columns\TextColumn::make('request_reason')
                     ->label('Request Reason')
@@ -116,21 +113,56 @@ class MaterialRequestResource extends Resource
                         return strlen($state) > 40 ? $state : null;
                     }),
 
+                Tables\Columns\TextColumn::make('ticket.building.name')
+                    ->label('Building')
+                    ->searchable()
+                    ->sortable()
+                    ->placeholder('No Building')
+                    ->toggleable(),
+
+                Tables\Columns\TextColumn::make('ticket.category.name')
+                    ->label('Category')
+                    ->searchable()
+                    ->sortable()
+                    ->placeholder('No Category')
+                    ->toggleable(),
+
+                Tables\Columns\TextColumn::make('ticket.subCategory.name')
+                    ->label('Sub Category')
+                    ->searchable()
+                    ->sortable()
+                    ->placeholder('No Sub Category')
+                    ->toggleable(),
+
+                Tables\Columns\TextColumn::make('ticket.subject')
+                    ->label('Ticket Subject')
+                    ->limit(30)
+                    ->searchable()
+                    ->tooltip(function (Tables\Columns\TextColumn $column): ?string {
+                        $state = $column->getState();
+
+                        return strlen($state) > 30 ? $state : null;
+                    })
+                    ->toggleable(),
+
                 Tables\Columns\TextColumn::make('status')
                     ->label('Status')
                     ->badge()
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(),
 
                 Tables\Columns\TextColumn::make('createdBy.name')
                     ->label('Created By')
                     ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(),
 
                 Tables\Columns\TextColumn::make('processedBy.name')
                     ->label('Processed By')
                     ->searchable()
                     ->sortable()
-                    ->placeholder('Not processed'),
+                    ->placeholder('Not processed')
+                    ->toggleable(),
 
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Created')
@@ -145,6 +177,20 @@ class MaterialRequestResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
+                Tables\Filters\SelectFilter::make('ticket.building_id')
+                    ->label('Building')
+                    ->relationship('ticket.building', 'name')
+                    ->searchable()
+                    ->preload()
+                    ->multiple(),
+
+                Tables\Filters\SelectFilter::make('ticket.category_id')
+                    ->label('Category')
+                    ->relationship('ticket.category', 'name')
+                    ->searchable()
+                    ->preload()
+                    ->multiple(),
+
                 Tables\Filters\SelectFilter::make('status')
                     ->options(MaterialRequestStatus::class)
                     ->multiple(),
@@ -164,9 +210,11 @@ class MaterialRequestResource extends Resource
                     ->multiple(),
             ])
             ->actions([
-                Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                Tables\Actions\ActionGroup::make([
+                    Tables\Actions\ViewAction::make(),
+                    Tables\Actions\EditAction::make(),
+                    Tables\Actions\DeleteAction::make(),
+                ]),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
