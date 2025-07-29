@@ -2,8 +2,8 @@
 
 namespace App\Policies\HelpCenter;
 
-use App\Models\HelpCenter\Article;
 use App\Models\User;
+use App\Models\HelpCenter\Article;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class ArticlePolicy
