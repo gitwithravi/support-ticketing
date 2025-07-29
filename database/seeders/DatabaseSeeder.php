@@ -30,6 +30,7 @@ class DatabaseSeeder extends Seeder
         $user->groups()->attach($group);
 
         $this->call([
+            PrfApiSettingsSeeder::class,
             HelpCenterSeeder::class,
             ClientSeeder::class,
         ]);

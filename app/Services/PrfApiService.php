@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Settings\PrfApiSettings;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
@@ -17,9 +18,11 @@ class PrfApiService
 
     public function __construct()
     {
-        $this->baseUrl = config('app.api_endpoint', env('API_ENDPOINT'));
-        $this->accessKey = config('app.access_key', env('ACCESS_KEY'));
-        $this->accessSecret = config('app.access_secret', env('ACCESS_SECRET'));
+        $settings = app(PrfApiSettings::class);
+        
+        $this->baseUrl = $settings->api_endpoint;
+        $this->accessKey = $settings->access_key;
+        $this->accessSecret = $settings->access_secret;
 
         $this->validateConfiguration();
     }
@@ -27,15 +30,15 @@ class PrfApiService
     private function validateConfiguration(): void
     {
         if (empty($this->baseUrl)) {
-            throw new \InvalidArgumentException('API_ENDPOINT is not configured');
+            throw new \InvalidArgumentException('PRF API endpoint is not configured in settings');
         }
 
         if (empty($this->accessKey)) {
-            throw new \InvalidArgumentException('ACCESS_KEY is not configured');
+            throw new \InvalidArgumentException('PRF API access key is not configured in settings');
         }
 
         if (empty($this->accessSecret)) {
-            throw new \InvalidArgumentException('ACCESS_SECRET is not configured');
+            throw new \InvalidArgumentException('PRF API access secret is not configured in settings');
         }
     }
 
