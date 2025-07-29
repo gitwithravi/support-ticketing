@@ -11,13 +11,14 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Auth\Passwords\CanResetPassword;
 use Illuminate\Support\Carbon;
 use Spatie\Tags\HasTags;
 
 class Client extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\ClientFactory> */
-    use HasFactory, HasNotes, HasTags, HasUlids, Notifiable;
+    use HasFactory, HasNotes, HasTags, HasUlids, Notifiable, CanResetPassword;
 
     /**
      * The attributes that are mass assignable.
