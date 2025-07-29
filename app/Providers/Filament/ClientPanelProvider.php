@@ -3,6 +3,7 @@
 namespace App\Providers\Filament;
 
 use App\Filament\AvatarProviders\GravatarProvider;
+use App\Filament\Client\Pages\Auth\Login;
 use App\Filament\Client\Pages\Auth\Register;
 use App\Filament\Client\Pages\Auth\VerifyOtp;
 use App\Filament\Client\Pages\EditProfile;
@@ -10,6 +11,7 @@ use App\Filament\Client\Widgets\CommonIssues;
 use App\Filament\Client\Widgets\LookingForSomethingElse;
 use App\Http\Middleware\EnsureUserIsActive;
 use App\Http\Middleware\BypassPolicies;
+use App\Http\Middleware\DebugClientAuth;
 use App\Settings\GeneralSettings;
 use Filament\FontProviders\GoogleFontProvider;
 use Filament\Http\Middleware\Authenticate;
@@ -58,7 +60,7 @@ class ClientPanelProvider extends PanelProvider
         return $panel
             ->id('client')
             ->path('client')
-            ->login()
+            ->login(Login::class)
             ->profile(EditProfile::class)
             ->registration(Register::class)
             ->passwordReset()
@@ -119,6 +121,7 @@ class ClientPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
+                DebugClientAuth::class,
                 EnsureUserIsActive::class,
                 BypassPolicies::class,
             ])

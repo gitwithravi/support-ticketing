@@ -17,7 +17,22 @@ class EnsureUserIsActive
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $user = $request->user();
+        // Get user from the client guard since this middleware is used in client panel
+        $user = $request->user('client');
+        
+        logger('EnsureUserIsActive middleware', [
+            'path' => $request->path(),
+            'has_user' => !is_null($user),
+            'user_id' => $user?->id,
+            'is_active' => $user?->is_active,
+            'email_verified' => $user?->hasVerifiedEmail(),
+            'is_client' => $user instanceof \App\Models\Client,
+        ]);
+        
+        // If no user, let the auth middleware handle it
+        if (!$user) {
+            return $next($request);
+        }
         
         // Allow access to OTP verification page for unverified clients
         if ($request->is('client/verify-otp') && !$user->hasVerifiedEmail()) {
@@ -26,6 +41,7 @@ class EnsureUserIsActive
         
         // Check if user is active
         if (!$user->is_active) {
+            logger('User is not active, logging out', ['user_id' => $user->id]);
             Filament::auth()->logout();
 
             throw ValidationException::withMessages([
@@ -35,6 +51,7 @@ class EnsureUserIsActive
         
         // For clients, also check email verification
         if ($user instanceof \App\Models\Client && !$user->hasVerifiedEmail()) {
+            logger('User email not verified, redirecting to OTP', ['user_id' => $user->id]);
             return redirect('/client/verify-otp');
         }
 

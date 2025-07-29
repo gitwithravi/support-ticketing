@@ -18,6 +18,7 @@
         "filament/spatie-laravel-tags-plugin": "^3.2",
         "laravel/framework": "^12.0",
         "laravel/sanctum": "^4.0",
+        "laravel/socialite": "^5.23",
         "laravel/tinker": "^2.9",
         "pxlrbt/filament-excel": "^2.4",
         "spatie/laravel-welcome-notification": "^2.4",

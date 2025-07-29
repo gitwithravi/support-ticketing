@@ -2,6 +2,7 @@
 
 use App\Filament\Pages\Auth\Welcome;
 use App\Http\Controllers\ArticleController;
+use App\Http\Controllers\Auth\GoogleAuthController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\FormController;
 use App\Http\Controllers\IndexController;
@@ -39,3 +40,14 @@ Route::group([
 Route::group(['middleware' => ['web', WelcomesNewUsers::class]], function () {
     Route::get('eagle/welcome/{user}', Welcome::class)->name('welcome');
 });
+
+// Google OAuth routes for client panel
+Route::prefix('auth/google')->middleware(['web'])->group(function () {
+    Route::get('redirect', [GoogleAuthController::class, 'redirect'])->name('auth.google.redirect');
+    Route::get('callback', [GoogleAuthController::class, 'callback'])->name('auth.google.callback');
+});
+
+// Google registration completion route
+Route::get('client/auth/google/register', \App\Filament\Client\Pages\Auth\GoogleRegister::class)
+    ->middleware(['web'])
+    ->name('client.auth.google.register');

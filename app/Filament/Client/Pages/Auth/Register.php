@@ -9,6 +9,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Pages\Auth\Register as BaseRegister;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Contracts\Support\Htmlable;
 
 class Register extends BaseRegister
 {
@@ -59,5 +60,15 @@ class Register extends BaseRegister
     protected function getRedirectUrl(): ?string
     {
         return '/client/verify-otp';
+    }
+
+    public function getHeading(): string|Htmlable
+    {
+        return 'Create your account';
+    }
+
+    public function getView(): string
+    {
+        return 'filament.client.auth.register';
     }
 }

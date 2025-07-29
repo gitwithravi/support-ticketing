@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Carbon;
 use Spatie\Tags\HasTags;
@@ -35,6 +36,8 @@ class Client extends Authenticatable
         'is_active',
         'otp_code',
         'otp_expires_at',
+        'google_id',
+        'provider',
     ];
 
     /**
@@ -52,6 +55,7 @@ class Client extends Authenticatable
         'email_verified_at' => 'datetime',
         'otp_expires_at' => 'datetime',
         'is_active' => 'boolean',
+        'password' => 'hashed',
     ];
 
     /**
@@ -135,6 +139,38 @@ class Client extends Authenticatable
     public function hasVerifiedEmail(): bool
     {
         return !is_null($this->email_verified_at);
+    }
+
+    /**
+     * Check if the client is using OAuth authentication.
+     */
+    public function isOAuthUser(): bool
+    {
+        return $this->provider !== 'local';
+    }
+
+    /**
+     * Check if the client is using Google OAuth.
+     */
+    public function isGoogleUser(): bool
+    {
+        return $this->provider === 'google';
+    }
+
+    /**
+     * Check if the client has a password set.
+     */
+    public function hasPassword(): bool
+    {
+        return !is_null($this->password);
+    }
+
+    /**
+     * Check if the client has Google account linked.
+     */
+    public function hasGoogleAccount(): bool
+    {
+        return !is_null($this->google_id);
     }
 
 }
