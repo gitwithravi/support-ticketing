@@ -8,6 +8,7 @@ use App\Filament\Client\Pages\Auth\VerifyOtp;
 use App\Filament\Client\Widgets\CommonIssues;
 use App\Filament\Client\Widgets\LookingForSomethingElse;
 use App\Http\Middleware\EnsureUserIsActive;
+use App\Http\Middleware\BypassPolicies;
 use App\Settings\GeneralSettings;
 use Filament\FontProviders\GoogleFontProvider;
 use Filament\Http\Middleware\Authenticate;
@@ -117,6 +118,7 @@ class ClientPanelProvider extends PanelProvider
             ->authMiddleware([
                 Authenticate::class,
                 EnsureUserIsActive::class,
+                BypassPolicies::class,
             ])
             ->plugins([])
             ->renderHook(
