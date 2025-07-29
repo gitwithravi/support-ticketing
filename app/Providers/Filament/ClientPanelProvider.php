@@ -5,6 +5,7 @@ namespace App\Providers\Filament;
 use App\Filament\AvatarProviders\GravatarProvider;
 use App\Filament\Client\Pages\Auth\Register;
 use App\Filament\Client\Pages\Auth\VerifyOtp;
+use App\Filament\Client\Pages\EditProfile;
 use App\Filament\Client\Widgets\CommonIssues;
 use App\Filament\Client\Widgets\LookingForSomethingElse;
 use App\Http\Middleware\EnsureUserIsActive;
@@ -58,6 +59,7 @@ class ClientPanelProvider extends PanelProvider
             ->id('client')
             ->path('client')
             ->login()
+            ->profile(EditProfile::class)
             ->registration(Register::class)
             ->passwordReset()
             ->emailVerification(false)
