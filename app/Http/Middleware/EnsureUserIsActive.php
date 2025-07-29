@@ -17,12 +17,25 @@ class EnsureUserIsActive
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (! $request->user()->is_active) {
+        $user = $request->user();
+        
+        // Allow access to OTP verification page for unverified clients
+        if ($request->is('client/verify-otp') && !$user->hasVerifiedEmail()) {
+            return $next($request);
+        }
+        
+        // Check if user is active
+        if (!$user->is_active) {
             Filament::auth()->logout();
 
             throw ValidationException::withMessages([
                 'data.email' => __('Your account is inactive. Please contact your administrator.'),
             ]);
+        }
+        
+        // For clients, also check email verification
+        if ($user instanceof \App\Models\Client && !$user->hasVerifiedEmail()) {
+            return redirect('/client/verify-otp');
         }
 
         return $next($request);

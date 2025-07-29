@@ -4,6 +4,7 @@ namespace App\Providers\Filament;
 
 use App\Filament\AvatarProviders\GravatarProvider;
 use App\Filament\Client\Pages\Auth\Register;
+use App\Filament\Client\Pages\Auth\VerifyOtp;
 use App\Filament\Client\Widgets\CommonIssues;
 use App\Filament\Client\Widgets\LookingForSomethingElse;
 use App\Http\Middleware\EnsureUserIsActive;
@@ -58,6 +59,7 @@ class ClientPanelProvider extends PanelProvider
             ->login()
             ->registration(Register::class)
             ->passwordReset()
+            ->emailVerification(false)
             ->authGuard('client')
             ->authPasswordBroker('clients')
             ->font($font, provider: GoogleFontProvider::class)
@@ -85,6 +87,9 @@ class ClientPanelProvider extends PanelProvider
                 in: app_path('Filament/Client/Pages'),
                 for: 'App\\Filament\\Client\\Pages',
             )
+            ->pages([
+                VerifyOtp::class,
+            ])
             ->discoverClusters(
                 in: app_path('Filament/Client/Clusters'),
                 for: 'App\\Filament\\Client\\Clusters',

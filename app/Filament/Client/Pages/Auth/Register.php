@@ -3,6 +3,7 @@
 namespace App\Filament\Client\Pages\Auth;
 
 use App\Models\Client;
+use App\Notifications\OtpVerification;
 use Filament\Forms\Components\Component;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
@@ -39,13 +40,24 @@ class Register extends BaseRegister
         // Set default timezone and locale
         $data['timezone'] = 'Asia/Calcutta';
         $data['locale'] = 'en';
-        $data['is_active'] = true;
+        $data['is_active'] = false; // Will be activated after OTP verification
 
         return $data;
     }
 
     protected function handleRegistration(array $data): Model
     {
-        return $this->getUserModel()::create($data);
+        $client = $this->getUserModel()::create($data);
+        
+        // Generate and send OTP
+        $otp = $client->generateOtp();
+        $client->notify(new OtpVerification($otp));
+        
+        return $client;
+    }
+
+    protected function getRedirectUrl(): ?string
+    {
+        return '/client/verify-otp';
     }
 }
