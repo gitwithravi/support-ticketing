@@ -5,6 +5,8 @@ namespace App\Providers\Filament;
 use App\Filament\AvatarProviders\GravatarProvider;
 use App\Filament\Pages\Auth\EditProfile;
 use App\Filament\Widgets\StatsOverview;
+use App\Filament\Widgets\TicketBuildingChart;
+use App\Filament\Widgets\TicketCategoryChart;
 use App\Filament\Widgets\TicketPriorityChart;
 use App\Filament\Widgets\TicketTypeChart;
 use App\Http\Middleware\EnsureUserIsActive;
@@ -83,6 +85,8 @@ class AppPanelProvider extends PanelProvider
                 StatsOverview::class,
                 TicketPriorityChart::class,
                 TicketTypeChart::class,
+                TicketCategoryChart::class,
+                TicketBuildingChart::class,
             ])
             ->middleware([
                 EncryptCookies::class,
