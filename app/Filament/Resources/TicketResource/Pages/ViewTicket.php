@@ -237,6 +237,12 @@ class ViewTicket extends ViewRecord
                                     ->inlineLabel()
                                     ->content(fn (Ticket $record): string => $record->verifiedBy?->name ?? '-')
                                     ->visible(fn (Ticket $record): bool => $record->verified_by !== null),
+
+                                Placeholder::make('verification_remakrs')
+                                    ->label('Verification Remakrs')
+                                    ->inlineLabel()
+                                    ->content(fn (Ticket $record): string => $record->verification_remarks ?? '-')
+                                    ->visible(fn (Ticket $record): bool => $record->verified_by !== null),
                             ]),
 
                     ])
@@ -439,16 +445,24 @@ class ViewTicket extends ViewRecord
                     ->default(fn (Ticket $record) => $record->verification_status)
                     ->required()
                     ->native(false),
+
+                Textarea::make('verification_remarks')
+                    ->label('Verification Remarks')
+                    ->rows(3)
+                    ->placeholder('Enter any remarks or notes about the verification')
+                    ->columnSpanFull(),
             ])
             ->action(function (array $data, Ticket $record): void {
                 $record->update([
                     'verification_status' => $data['verification_status'],
+                    'verification_remarks' => $data['verification_remarks'],
                     'verification_timestamp' => now(),
                     'verified_by' => auth()->id(),
                 ]);
 
                 $this->refreshFormData([
                     'verification_status',
+                    'verification_remarks',
                     'verification_timestamp',
                     'verified_by',
                 ]);
@@ -464,6 +478,7 @@ class ViewTicket extends ViewRecord
             ->visible(function (Ticket $record) use ($currentUser): bool {
                 // Hide if user is not admin or building supervisor
                 if (! $currentUser || (! $currentUser->isAdmin() && $currentUser->user_type !== UserType::BUILDING_SUPERVISOR)) {
+                   
                     return false;
                 }
 
@@ -472,7 +487,7 @@ class ViewTicket extends ViewRecord
                     return false;
                 }
 
-                return true;
+                return ($record->status == TicketStatus::CLOSED);
             });
 
         $actions[] = Actions\EditAction::make()

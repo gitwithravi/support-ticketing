@@ -55,6 +55,7 @@ class Ticket extends Model
         'verified_by',
         'verification_timestamp',
         'verification_status',
+        'verification_remarks',
         'ticket_closing_date',
         'maintenance_term',
     ];

@@ -86,6 +86,8 @@ class TicketExporter extends Exporter
                 ->formatStateUsing(fn ($state): string => $state?->getLabel() ?? ''),
             ExportColumn::make('verification_timestamp')
                 ->label('Verification Timestamp'),
+            ExportColumn::make('verification_remarks')
+                ->label('Verification Remarks'),
 
             // Flags and dates
 
