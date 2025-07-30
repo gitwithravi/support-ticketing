@@ -38,7 +38,7 @@ class ManagePrfApi extends SettingsPage
         return $form
             ->schema([
                 Section::make(__('API Configuration'))
-                    ->description(__('Configure the PRF API connection settings.'))
+                    ->description(__('Configure the shared PRF API endpoint. Individual users need to configure their own access credentials in their profile.'))
                     ->schema([
                         Grid::make()
                             ->schema([
@@ -48,19 +48,7 @@ class ManagePrfApi extends SettingsPage
                                     ->maxLength(255)
                                     ->required()
                                     ->placeholder('https://api.example.com')
-                                    ->helperText(__('The base URL for the PRF API service.')),
-                                TextInput::make('access_key')
-                                    ->label(__('Access Key'))
-                                    ->maxLength(255)
-                                    ->required()
-                                    ->helperText(__('The access key for PRF API authentication.')),
-                                TextInput::make('access_secret')
-                                    ->label(__('Access Secret'))
-                                    ->password()
-                                    ->revealable()
-                                    ->maxLength(255)
-                                    ->required()
-                                    ->helperText(__('The access secret for PRF API authentication.')),
+                                    ->helperText(__('The base URL for the PRF API service. This is shared across all users.')),
                             ]),
                     ]),
             ]);

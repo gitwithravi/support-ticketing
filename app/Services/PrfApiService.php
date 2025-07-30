@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\User;
 use App\Settings\PrfApiSettings;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Client\Response;
@@ -16,29 +17,39 @@ class PrfApiService
 
     private string $accessSecret;
 
-    public function __construct()
+    public function __construct(User $user)
     {
         $settings = app(PrfApiSettings::class);
-        
-        $this->baseUrl = $settings->api_endpoint;
-        $this->accessKey = $settings->access_key;
-        $this->accessSecret = $settings->access_secret;
 
-        $this->validateConfiguration();
+        $this->baseUrl = $settings->api_endpoint;
+
+        $credentials = $user->getPrfApiCredentials();
+        $this->accessKey = $credentials['access_key'] ?? '';
+        $this->accessSecret = $credentials['access_secret'] ?? '';
+
+        $this->validateConfiguration($user);
     }
 
-    private function validateConfiguration(): void
+    /**
+     * Create a new PrfApiService instance for the given user
+     */
+    public static function forUser(User $user): self
+    {
+        return new self($user);
+    }
+
+    private function validateConfiguration(User $user): void
     {
         if (empty($this->baseUrl)) {
             throw new \InvalidArgumentException('PRF API endpoint is not configured in settings');
         }
 
         if (empty($this->accessKey)) {
-            throw new \InvalidArgumentException('PRF API access key is not configured in settings');
+            throw new \InvalidArgumentException("PRF API access key is not configured for user {$user->name} (ID: {$user->id})");
         }
 
         if (empty($this->accessSecret)) {
-            throw new \InvalidArgumentException('PRF API access secret is not configured in settings');
+            throw new \InvalidArgumentException("PRF API access secret is not configured for user {$user->name} (ID: {$user->id})");
         }
     }
 

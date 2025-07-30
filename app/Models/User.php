@@ -29,6 +29,8 @@ class User extends Authenticatable
         'user_type',
         'password',
         'is_active',
+        'prf_api_access_key',
+        'prf_api_access_secret',
     ];
 
     /**
@@ -39,6 +41,8 @@ class User extends Authenticatable
     protected $hidden = [
         'password',
         'remember_token',
+        'prf_api_access_key',
+        'prf_api_access_secret',
     ];
 
     /**
@@ -53,6 +57,8 @@ class User extends Authenticatable
             'password' => 'hashed',
             'user_type' => UserType::class,
             'is_active' => 'boolean',
+            'prf_api_access_key' => 'encrypted',
+            'prf_api_access_secret' => 'encrypted',
         ];
     }
 
@@ -164,5 +170,35 @@ class User extends Authenticatable
     public function isAgent(): bool
     {
         return $this->user_type === UserType::AGENT;
+    }
+
+    /**
+     * Check if user has PRF API credentials configured
+     */
+    public function hasPrfApiCredentials(): bool
+    {
+        return ! empty($this->prf_api_access_key) && ! empty($this->prf_api_access_secret);
+    }
+
+    /**
+     * Get PRF API credentials for this user
+     *
+     * @return array{access_key: string|null, access_secret: string|null}
+     */
+    public function getPrfApiCredentials(): array
+    {
+        return [
+            'access_key' => $this->prf_api_access_key,
+            'access_secret' => $this->prf_api_access_secret,
+        ];
+    }
+
+    /**
+     * Set PRF API credentials for this user
+     */
+    public function setPrfApiCredentials(?string $accessKey, ?string $accessSecret): void
+    {
+        $this->prf_api_access_key = $accessKey;
+        $this->prf_api_access_secret = $accessSecret;
     }
 }

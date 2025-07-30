@@ -277,6 +277,7 @@ class MaterialRequestResource extends Resource
                         ->modalHeading('Create Purchase Request Form (PRF)')
                         ->modalDescription('Create a PRF in the Purchase Management system for the selected material requests.')
                         ->modalWidth('lg')
+                        ->visible(fn () => auth()->user()?->hasPrfApiCredentials() ?? false)
                         ->form([
                             Forms\Components\TextInput::make('purpose')
                                 ->label('Purpose')
@@ -342,7 +343,20 @@ class MaterialRequestResource extends Resource
     protected static function createPrfAction(Collection $records, array $data): void
     {
         try {
-            $prfApiService = new PrfApiService;
+            $currentUser = auth()->user();
+
+            // Check if user has PRF API credentials
+            if (! $currentUser->hasPrfApiCredentials()) {
+                Notification::make()
+                    ->title('PRF Creation Failed')
+                    ->body('You do not have PRF API credentials configured. Please contact your administrator to set up your credentials.')
+                    ->danger()
+                    ->send();
+
+                return;
+            }
+
+            $prfApiService = new PrfApiService($currentUser);
 
             // Load related data
             $materialRequests = $records->load(['items', 'ticket']);

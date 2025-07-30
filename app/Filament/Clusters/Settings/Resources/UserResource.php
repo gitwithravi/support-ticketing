@@ -82,6 +82,72 @@ class UserResource extends Resource
                         'ownerRecord' => $record,
                         'pageClass' => $livewire::class,
                     ])->hiddenOn(['create']),
+                    Forms\Components\Section::make(__('PRF API Credentials'))
+                        ->description(__('Configure PRF API access credentials for this user. These credentials are required to create Purchase Request Forms.'))
+                        ->schema([
+                            Forms\Components\Group::make()
+                                ->schema([
+                                    Forms\Components\Placeholder::make('prf_credentials_status')
+                                        ->label(__('Current Status'))
+                                        ->content(function (?User $record = null): string {
+                                            if (! $record) {
+                                                return __('No credentials configured');
+                                            }
+
+                                            return $record->hasPrfApiCredentials()
+                                                ? __('✅ Credentials are configured')
+                                                : __('❌ No credentials configured');
+                                        })
+                                        ->columnSpanFull(),
+                                    Forms\Components\Actions::make([
+                                        Forms\Components\Actions\Action::make('reset_credentials')
+                                            ->label(__('Reset Credentials'))
+                                            ->icon('heroicon-o-arrow-path')
+                                            ->color('warning')
+                                            ->requiresConfirmation()
+                                            ->modalHeading(__('Reset PRF API Credentials'))
+                                            ->modalDescription(__('This will clear the existing credentials and allow you to enter new ones. Are you sure?'))
+                                            ->visible(fn (?User $record = null): bool => $record?->hasPrfApiCredentials() ?? false)
+                                            ->action(function (User $record): void {
+                                                $record->update([
+                                                    'prf_api_access_key' => null,
+                                                    'prf_api_access_secret' => null,
+                                                ]);
+                                            }),
+                                    ])
+                                        ->visible(fn (?User $record = null): bool => $record?->hasPrfApiCredentials() ?? false)
+                                        ->columnSpanFull(),
+                                    Forms\Components\TextInput::make('prf_api_access_key')
+                                        ->label(__('PRF API Access Key'))
+                                        ->maxLength(255)
+                                        ->helperText(__('The access key for PRF API authentication.'))
+                                        ->disabled(fn (?User $record = null): bool => $record?->hasPrfApiCredentials() ?? false)
+                                        ->placeholder(function (?User $record = null): string {
+                                            if ($record?->hasPrfApiCredentials()) {
+                                                return __('Credentials configured - reset to change');
+                                            }
+
+                                            return __('Enter PRF API access key');
+                                        }),
+                                    Forms\Components\TextInput::make('prf_api_access_secret')
+                                        ->label(__('PRF API Access Secret'))
+                                        ->password()
+                                        ->revealable()
+                                        ->maxLength(255)
+                                        ->helperText(__('The access secret for PRF API authentication.'))
+                                        ->disabled(fn (?User $record = null): bool => $record?->hasPrfApiCredentials() ?? false)
+                                        ->placeholder(function (?User $record = null): string {
+                                            if ($record?->hasPrfApiCredentials()) {
+                                                return __('Credentials configured - reset to change');
+                                            }
+
+                                            return __('Enter PRF API access secret');
+                                        }),
+                                ])
+                                ->columns(2),
+                        ])
+                        ->collapsed()
+                        ->hiddenOn(['create']),
                 ])->columnSpan(['lg' => 2]),
                 Forms\Components\Group::make()
                     ->schema([
@@ -160,6 +226,17 @@ class UserResource extends Resource
                 Tables\Columns\TextColumn::make('groups_count')
                     ->counts('groups')
                     ->label(__('Groups')),
+                Tables\Columns\IconColumn::make('has_prf_credentials')
+                    ->label(__('PRF API'))
+                    ->getStateUsing(fn (User $record): bool => $record->hasPrfApiCredentials())
+                    ->boolean()
+                    ->trueIcon('heroicon-o-check-circle')
+                    ->falseIcon('heroicon-o-x-circle')
+                    ->trueColor('success')
+                    ->falseColor('gray')
+                    ->tooltip(fn (User $record): string => $record->hasPrfApiCredentials()
+                        ? 'User has PRF API credentials configured'
+                        : 'User needs PRF API credentials to create PRFs'),
                 Tables\Columns\IconColumn::make('is_active')
                     ->label(__('Active'))
                     ->boolean(),
