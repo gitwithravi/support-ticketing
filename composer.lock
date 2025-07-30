@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "06e988d6d2d2da4cb876df67e99a8c79",
+    "content-hash": "b43d5ed6f447b44f2a5f8adb62bf2655",
     "packages": [
         {
             "name": "anourvalar/eloquent-serialize",
@@ -71,6 +71,73 @@
                 "source": "https://github.com/AnourValar/eloquent-serialize/tree/1.3.3"
             },
             "time": "2025-05-28T17:07:28+00:00"
+        },
+        {
+            "name": "arbermustafa/filament-google-charts-widgets",
+            "version": "2.0.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/arbermustafa/filament-google-charts-widgets.git",
+                "reference": "554828ea637dc1939d661e949d0421cdef117339"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/arbermustafa/filament-google-charts-widgets/zipball/554828ea637dc1939d661e949d0421cdef117339",
+                "reference": "554828ea637dc1939d661e949d0421cdef117339",
+                "shasum": ""
+            },
+            "require": {
+                "filament/widgets": "^3.0",
+                "php": "^8.1",
+                "spatie/laravel-package-tools": "^1.13.5"
+            },
+            "require-dev": {
+                "pestphp/pest": "^2.10"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "aliases": {
+                        "FilamentGoogleCharts": "ArberMustafa\\FilamentGoogleCharts\\FilamentGoogleCharts"
+                    },
+                    "providers": [
+                        "ArberMustafa\\FilamentGoogleCharts\\WidgetServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "ArberMustafa\\FilamentGoogleCharts\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Arber Mustafa",
+                    "email": "info@arbermustafa.com",
+                    "homepage": "https://arbermustafa.com",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Chart widgets for Filament Php using Google Charts",
+            "homepage": "https://github.com/arbermustafa/filament-google-charts-widgets",
+            "keywords": [
+                "arbermustafa",
+                "charts",
+                "filament-google-charts-widgets",
+                "filament-plugin",
+                "google-charts",
+                "laravel",
+                "php"
+            ],
+            "support": {
+                "issues": "https://github.com/arbermustafa/filament-google-charts-widgets/issues",
+                "source": "https://github.com/arbermustafa/filament-google-charts-widgets/tree/2.0.2"
+            },
+            "time": "2023-08-24T18:46:58+00:00"
         },
         {
             "name": "beyondcode/laravel-mailbox",

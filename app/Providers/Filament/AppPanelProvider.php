@@ -82,11 +82,7 @@ class AppPanelProvider extends PanelProvider
                 for: 'App\\Filament\\Widgets',
             )
             ->widgets([
-                StatsOverview::class,
-                TicketPriorityChart::class,
-                TicketTypeChart::class,
-                TicketCategoryChart::class,
-                TicketBuildingChart::class,
+
             ])
             ->middleware([
                 EncryptCookies::class,
