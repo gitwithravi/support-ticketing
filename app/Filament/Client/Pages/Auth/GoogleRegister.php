@@ -5,7 +5,6 @@ namespace App\Filament\Client\Pages\Auth;
 use App\Models\Client;
 use Filament\Actions\Action;
 use Filament\Forms;
-use Filament\Forms\Components\Component;
 use Filament\Forms\Form;
 use Filament\Notifications\Notification;
 use Filament\Pages\Concerns\InteractsWithFormActions;
@@ -14,34 +13,35 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Validation\ValidationException;
-use Filament\Facades\Filament;
 
 class GoogleRegister extends SimplePage
 {
     use InteractsWithFormActions;
 
     protected static string $layout = 'filament-panels::components.layout.simple';
-    
+
     protected static string $view = 'filament.client.auth.google-register';
 
     public ?array $data = [];
 
     protected ?string $googleUserName = null;
+
     protected ?string $googleUserEmail = null;
 
     public function mount(): void
     {
         // Check if Google user data exists in session
         $googleUser = Session::get('google_user');
-        
+
         logger('GoogleRegister mount called', [
-            'has_google_user' => !is_null($googleUser),
-            'google_user' => $googleUser
+            'has_google_user' => ! is_null($googleUser),
+            'google_user' => $googleUser,
         ]);
-        
-        if (!$googleUser) {
+
+        if (! $googleUser) {
             logger('No Google user data found, redirecting to login');
             $this->redirect('/client/login');
+
             return;
         }
 
@@ -88,10 +88,10 @@ class GoogleRegister extends SimplePage
     public function register(): void
     {
         $googleUser = Session::get('google_user');
-        
-        if (!$googleUser) {
+
+        if (! $googleUser) {
             throw ValidationException::withMessages([
-                'error' => 'Registration session expired. Please try again.'
+                'error' => 'Registration session expired. Please try again.',
             ]);
         }
 
@@ -102,9 +102,9 @@ class GoogleRegister extends SimplePage
             'name' => $googleUser['name'],
             'email' => $googleUser['email'],
             'unique_id' => $data['unique_id'],
-            'google_id' => $googleUser['id']
+            'google_id' => $googleUser['id'],
         ]);
-        
+
         $client = Client::create([
             'name' => $googleUser['name'],
             'email' => $googleUser['email'],
@@ -117,11 +117,11 @@ class GoogleRegister extends SimplePage
             'locale' => 'en',
             'password' => null,
         ]);
-        
+
         logger('Google user created successfully', [
             'client_id' => $client->id,
             'has_password' => $client->hasPassword(),
-            'has_google_account' => $client->hasGoogleAccount()
+            'has_google_account' => $client->hasGoogleAccount(),
         ]);
 
         // Clear session data
@@ -129,14 +129,14 @@ class GoogleRegister extends SimplePage
 
         // Regenerate session first
         request()->session()->regenerate();
-        
+
         // Login the new user using Laravel client guard
         Auth::guard('client')->login($client, false);
 
         logger('New Google user registered and logged in', [
             'client_id' => $client->id,
             'auth_check' => Auth::guard('client')->check(),
-            'auth_id' => Auth::guard('client')->id()
+            'auth_id' => Auth::guard('client')->id(),
         ]);
 
         Notification::make()
@@ -146,7 +146,7 @@ class GoogleRegister extends SimplePage
 
         // Ensure session is saved
         session()->save();
-        
+
         $this->redirect('/client');
     }
 

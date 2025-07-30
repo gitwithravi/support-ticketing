@@ -46,7 +46,7 @@ class MaterialRequestResource extends Resource
 
                                             // Apply user-based filtering for ticket selection
                                             if ($currentUser && $currentUser->isBuildingSupervisor()) {
-                                                $supervisedBuildingIds = $currentUser->supervisedBuildings()->pluck('id');
+                                                $supervisedBuildingIds = $currentUser->supervisedBuildings()->pluck('buildings.id');
                                                 $query->whereIn('building_id', $supervisedBuildingIds);
                                             } elseif ($currentUser && $currentUser->isCategorySupervisor()) {
                                                 $supervisedCategoryIds = $currentUser->supervisedCategories()->pluck('id');
@@ -116,7 +116,7 @@ class MaterialRequestResource extends Resource
                 // Apply user-based filtering
                 if ($currentUser && $currentUser->isBuildingSupervisor()) {
                     // Building supervisors see only material requests from buildings they supervise
-                    $supervisedBuildingIds = $currentUser->supervisedBuildings()->pluck('id');
+                    $supervisedBuildingIds = $currentUser->supervisedBuildings()->pluck('buildings.id');
                     $query->whereHas('ticket', function ($ticketQuery) use ($supervisedBuildingIds) {
                         $ticketQuery->whereIn('building_id', $supervisedBuildingIds);
                     });
@@ -443,7 +443,7 @@ class MaterialRequestResource extends Resource
 
         // Apply user-based filtering for all queries
         if ($currentUser && $currentUser->isBuildingSupervisor()) {
-            $supervisedBuildingIds = $currentUser->supervisedBuildings()->pluck('id');
+            $supervisedBuildingIds = $currentUser->supervisedBuildings()->pluck('buildings.id');
             $query->whereHas('ticket', function ($ticketQuery) use ($supervisedBuildingIds) {
                 $ticketQuery->whereIn('building_id', $supervisedBuildingIds);
             });

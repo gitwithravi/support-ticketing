@@ -2,45 +2,44 @@
 
 namespace App\Filament\Client\Pages\Auth;
 
-use App\Models\Client;
 use App\Notifications\OtpVerification;
 use Filament\Actions\Action;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Form;
-use Filament\Notifications\Notification;
 use Filament\Actions\Concerns\InteractsWithActions;
 use Filament\Actions\Contracts\HasActions;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
+use Filament\Forms\Form;
+use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
-use Illuminate\Validation\ValidationException;
 
 class VerifyOtp extends Page implements HasActions, HasForms
 {
     use InteractsWithActions, InteractsWithForms;
+
     protected static ?string $navigationIcon = 'heroicon-o-shield-check';
-    
+
     protected static string $view = 'filament.client.auth.verify-otp';
-    
+
     protected static string $routePath = '/verify-otp';
-    
+
     protected static bool $shouldRegisterNavigation = false;
-    
+
     public ?array $data = [];
-    
+
     public array $code = ['', '', '', '', '', ''];
-    
+
     public int $secondsRemaining = 0;
-    
+
     protected static string $layout = 'filament-panels::components.layout.base';
 
     public function mount(): void
     {
         if (Auth::guard('client')->check()) {
             $client = Auth::guard('client')->user();
-            
+
             if ($client->hasVerifiedEmail()) {
                 redirect()->intended('/client');
             }
@@ -74,22 +73,25 @@ class VerifyOtp extends Page implements HasActions, HasForms
     public function verify(): void
     {
         $otp = implode('', $this->code);
-        
+
         if (strlen($otp) !== 6) {
             $this->addError('code', 'Please enter all 6 digits.');
+
             return;
         }
 
         $client = Auth::guard('client')->user();
 
-        if (!$client) {
+        if (! $client) {
             $this->addError('code', 'Session expired. Please login again.');
+
             return;
         }
 
-        if (!$client->verifyOtp($otp)) {
+        if (! $client->verifyOtp($otp)) {
             $this->addError('code', 'Invalid or expired verification code.');
             $this->code = ['', '', '', '', '', ''];
+
             return;
         }
 
@@ -110,17 +112,19 @@ class VerifyOtp extends Page implements HasActions, HasForms
         }
 
         $client = Auth::guard('client')->user();
-        
-        if (!$client) {
+
+        if (! $client) {
             $this->addError('code', 'Session expired. Please login again.');
+
             return;
         }
 
-        $key = 'resend-otp:' . $client->id;
-        
+        $key = 'resend-otp:'.$client->id;
+
         if (RateLimiter::tooManyAttempts($key, 3)) {
             $seconds = RateLimiter::availableIn($key);
             $this->addError('code', "Too many attempts. Please wait {$seconds} seconds before requesting another code.");
+
             return;
         }
 
@@ -191,7 +195,7 @@ class VerifyOtp extends Page implements HasActions, HasForms
     public function getSubheading(): string
     {
         $email = Auth::guard('client')->user()?->email ?? '';
+
         return "We've sent a 6-digit verification code to {$email}. Please enter it below to complete your registration.";
     }
-
 }

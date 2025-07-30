@@ -4,21 +4,20 @@ namespace App\Models;
 
 use App\Filament\AvatarProviders\GravatarProvider;
 use App\Traits\HasNotes;
+use Illuminate\Auth\Passwords\CanResetPassword;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Auth\Passwords\CanResetPassword;
 use Illuminate\Support\Carbon;
 use Spatie\Tags\HasTags;
 
 class Client extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\ClientFactory> */
-    use HasFactory, HasNotes, HasTags, HasUlids, Notifiable, CanResetPassword;
+    use CanResetPassword, HasFactory, HasNotes, HasTags, HasUlids, Notifiable;
 
     /**
      * The attributes that are mass assignable.
@@ -96,7 +95,7 @@ class Client extends Authenticatable
     public function generateOtp(): string
     {
         $otp = str_pad((string) random_int(100000, 999999), 6, '0', STR_PAD_LEFT);
-        
+
         $this->update([
             'otp_code' => $otp,
             'otp_expires_at' => Carbon::now()->addMinutes(15),
@@ -110,7 +109,7 @@ class Client extends Authenticatable
      */
     public function verifyOtp(string $otp): bool
     {
-        if (!$this->otp_code || !$this->otp_expires_at) {
+        if (! $this->otp_code || ! $this->otp_expires_at) {
             return false;
         }
 
@@ -139,7 +138,7 @@ class Client extends Authenticatable
      */
     public function hasVerifiedEmail(): bool
     {
-        return !is_null($this->email_verified_at);
+        return ! is_null($this->email_verified_at);
     }
 
     /**
@@ -163,7 +162,7 @@ class Client extends Authenticatable
      */
     public function hasPassword(): bool
     {
-        return !is_null($this->password);
+        return ! is_null($this->password);
     }
 
     /**
@@ -171,7 +170,6 @@ class Client extends Authenticatable
      */
     public function hasGoogleAccount(): bool
     {
-        return !is_null($this->google_id);
+        return ! is_null($this->google_id);
     }
-
 }

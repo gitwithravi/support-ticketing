@@ -12,7 +12,7 @@ abstract class TestCase extends BaseTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         // Ensure we're using the testing environment
         $this->app->detectEnvironment(function () {
             return 'testing';

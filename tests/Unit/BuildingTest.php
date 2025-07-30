@@ -16,7 +16,6 @@ test('building has correct fillable attributes', function () {
         'total_rooms',
         'construction_year',
         'is_active',
-        'building_supervisor_id',
         'contact_info',
         'latitude',
         'longitude',
@@ -26,9 +25,7 @@ test('building has correct fillable attributes', function () {
 });
 
 test('building can be created with valid attributes', function () {
-    $supervisor = User::factory()->create();
-
-    $building = Building::factory()->create([
+    $building = Building::create([
         'name' => 'Main Office',
         'code' => 'MOB-001',
         'description' => 'Main office building',
@@ -38,7 +35,6 @@ test('building can be created with valid attributes', function () {
         'total_rooms' => 50,
         'construction_year' => 2020,
         'is_active' => true,
-        'building_supervisor_id' => $supervisor->id,
         'latitude' => 40.7128,
         'longitude' => -74.0060,
     ]);
@@ -55,12 +51,20 @@ test('building can be created with valid attributes', function () {
         ->and($building->is_active)->toBeTrue();
 });
 
-test('building belongs to supervisor', function () {
-    $supervisor = User::factory()->create();
-    $building = Building::factory()->create(['building_supervisor_id' => $supervisor->id]);
+test('building has many supervisors', function () {
+    $building = Building::factory()->create();
+    $supervisors = User::factory()->count(3)->create(['user_type' => \App\Enums\Users\UserType::BUILDING_SUPERVISOR]);
+    
+    $building->supervisors()->attach($supervisors);
 
-    expect($building->supervisor)->toBeInstanceOf(User::class)
-        ->and($building->supervisor->id)->toBe($supervisor->id);
+    expect($building->supervisors)->toHaveCount(3)
+        ->and($building->supervisors->first())->toBeInstanceOf(User::class);
+});
+
+test('building legacy supervisor method returns null when no building_supervisor_id', function () {
+    $building = Building::factory()->create();
+    
+    expect($building->supervisor)->toBeNull();
 });
 
 test('building has many tickets', function () {

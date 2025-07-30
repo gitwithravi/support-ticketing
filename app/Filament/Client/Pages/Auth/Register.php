@@ -8,8 +8,8 @@ use Filament\Forms\Components\Component;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Pages\Auth\Register as BaseRegister;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Contracts\Support\Htmlable;
+use Illuminate\Database\Eloquent\Model;
 
 class Register extends BaseRegister
 {
@@ -49,11 +49,11 @@ class Register extends BaseRegister
     protected function handleRegistration(array $data): Model
     {
         $client = $this->getUserModel()::create($data);
-        
+
         // Generate and send OTP
         $otp = $client->generateOtp();
         $client->notify(new OtpVerification($otp));
-        
+
         return $client;
     }
 

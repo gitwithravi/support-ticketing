@@ -101,9 +101,9 @@ test('client has avatar attribute', function () {
 
 test('client can generate otp', function () {
     $client = Client::factory()->create();
-    
+
     $otp = $client->generateOtp();
-    
+
     expect($otp)->toHaveLength(6)
         ->and($otp)->toMatch('/^\d{6}$/')
         ->and($client->fresh()->otp_code)->toBe($otp)
@@ -113,35 +113,35 @@ test('client can generate otp', function () {
 test('client can verify valid otp', function () {
     $client = Client::factory()->create();
     $otp = $client->generateOtp();
-    
+
     expect($client->verifyOtp($otp))->toBeTrue();
 });
 
 test('client cannot verify invalid otp', function () {
     $client = Client::factory()->create();
     $client->generateOtp();
-    
+
     expect($client->verifyOtp('123456'))->toBeFalse();
 });
 
 test('client cannot verify expired otp', function () {
     $client = Client::factory()->create();
     $client->generateOtp();
-    
+
     // Manually set expiry to past
     $client->update(['otp_expires_at' => now()->subMinutes(20)]);
-    
+
     expect($client->verifyOtp($client->otp_code))->toBeFalse();
 });
 
 test('client can mark email as verified', function () {
     $client = Client::factory()->create(['is_active' => false]);
     $client->generateOtp();
-    
+
     $client->markEmailAsVerified();
-    
+
     $client = $client->fresh();
-    
+
     expect($client->email_verified_at)->not->toBeNull()
         ->and($client->otp_code)->toBeNull()
         ->and($client->otp_expires_at)->toBeNull()
@@ -151,7 +151,7 @@ test('client can mark email as verified', function () {
 test('client has verified email returns correct status', function () {
     $unverifiedClient = Client::factory()->create(['email_verified_at' => null]);
     $verifiedClient = Client::factory()->create(['email_verified_at' => now()]);
-    
+
     expect($unverifiedClient->hasVerifiedEmail())->toBeFalse()
         ->and($verifiedClient->hasVerifiedEmail())->toBeTrue();
 });

@@ -42,7 +42,7 @@ class StatsOverview extends BaseWidget
         if ($currentUser) {
             if ($currentUser->isBuildingSupervisor()) {
                 // Building supervisors see only tickets from buildings they supervise
-                $supervisedBuildingIds = $currentUser->supervisedBuildings()->pluck('id');
+                $supervisedBuildingIds = $currentUser->supervisedBuildings()->pluck('buildings.id');
                 $query->whereIn('building_id', $supervisedBuildingIds);
             } elseif ($currentUser->isAgent()) {
                 // Agents see only tickets assigned to them

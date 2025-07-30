@@ -3,9 +3,9 @@
 namespace App\Http\Middleware;
 
 use Closure;
+use Filament\Facades\Filament;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Filament\Facades\Filament;
 
 class DebugClientAuth
 {
@@ -19,7 +19,7 @@ class DebugClientAuth
             'filament_auth_check' => Filament::auth()->check(),
             'filament_auth_id' => Filament::auth()->id(),
             'session_id' => session()->getId(),
-            'has_login_session' => session()->has('login_client_' . Auth::guard('client')->getName()),
+            'has_login_session' => session()->has('login_client_'.Auth::guard('client')->getName()),
         ]);
 
         return $next($request);

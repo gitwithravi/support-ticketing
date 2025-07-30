@@ -145,7 +145,8 @@ class User extends Authenticatable
      */
     public function supervisedBuildings()
     {
-        return $this->hasMany(Building::class, 'building_supervisor_id');
+        return $this->belongsToMany(Building::class, 'building_supervisor')
+            ->withTimestamps();
     }
 
     /**

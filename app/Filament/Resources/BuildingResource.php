@@ -138,17 +138,18 @@ class BuildingResource extends Resource
                     ->schema([
                         Forms\Components\Section::make(__('Supervisor Assignment'))
                             ->schema([
-                                Forms\Components\Select::make('building_supervisor_id')
-                                    ->label(__('Building Supervisor'))
+                                Forms\Components\Select::make('supervisors')
+                                    ->label(__('Building Supervisors'))
                                     ->relationship(
-                                        name: 'supervisor',
+                                        name: 'supervisors',
                                         titleAttribute: 'name',
                                         modifyQueryUsing: fn ($query) => $query->where('user_type', UserType::BUILDING_SUPERVISOR->value)
                                     )
+                                    ->multiple()
                                     ->searchable()
                                     ->preload()
-                                    ->placeholder(__('Select a building supervisor'))
-                                    ->helperText(__('Only users with Building Supervisor role are shown'))
+                                    ->placeholder(__('Select building supervisors'))
+                                    ->helperText(__('You can assign multiple supervisors to this building'))
                                     ->createOptionForm([
                                         Forms\Components\TextInput::make('name')
                                             ->label(__('Name'))
@@ -182,9 +183,9 @@ class BuildingResource extends Resource
 
                         Forms\Components\Section::make(__('Metadata'))
                             ->schema([
-                                Forms\Components\Placeholder::make('supervisor.name')
-                                    ->label(__('Current Supervisor'))
-                                    ->content(fn (?Building $record): string => $record?->supervisor?->name ?? __('No supervisor assigned')),
+                                Forms\Components\Placeholder::make('supervisors_list')
+                                    ->label(__('Current Supervisors'))
+                                    ->content(fn (?Building $record): string => $record ? $record->supervisors->pluck('name')->join(', ') : __('No supervisors assigned')),
 
                                 Forms\Components\Placeholder::make('tickets_count')
                                     ->label(__('Total Tickets'))
@@ -230,14 +231,15 @@ class BuildingResource extends Resource
                     ->icon(fn (BuildingType $state): string => $state->getIcon())
                     ->sortable(),
 
-                Tables\Columns\TextColumn::make('supervisor.name')
-                    ->label(__('Supervisor'))
+                Tables\Columns\TextColumn::make('supervisors.name')
+                    ->label(__('Supervisors'))
                     ->searchable()
                     ->sortable()
-                    ->placeholder(__('No supervisor'))
+                    ->placeholder(__('No supervisors'))
                     ->badge()
                     ->color('success')
-                    ->icon('heroicon-o-user'),
+                    ->icon('heroicon-o-users')
+                    ->separator(', '),
 
                 Tables\Columns\TextColumn::make('floors')
                     ->label(__('Floors'))
@@ -274,10 +276,10 @@ class BuildingResource extends Resource
                     ->searchable()
                     ->preload(),
 
-                Tables\Filters\SelectFilter::make('building_supervisor_id')
+                Tables\Filters\SelectFilter::make('supervisors')
                     ->label(__('Supervisor'))
                     ->relationship(
-                        name: 'supervisor',
+                        name: 'supervisors',
                         titleAttribute: 'name',
                         modifyQueryUsing: fn ($query) => $query->where('user_type', UserType::BUILDING_SUPERVISOR->value)
                     )
@@ -294,7 +296,7 @@ class BuildingResource extends Resource
 
                 Tables\Filters\Filter::make('unassigned')
                     ->label(__('Unassigned Buildings'))
-                    ->query(fn ($query) => $query->whereNull('building_supervisor_id'))
+                    ->query(fn ($query) => $query->doesntHave('supervisors'))
                     ->toggle(),
 
                 Tables\Filters\Filter::make('has_location')
@@ -316,7 +318,7 @@ class BuildingResource extends Resource
                     ->label(__('Building Type'))
                     ->collapsible(),
 
-                Tables\Grouping\Group::make('supervisor.name')
+                Tables\Grouping\Group::make('supervisors.name')
                     ->label(__('Supervisor'))
                     ->collapsible(),
             ])

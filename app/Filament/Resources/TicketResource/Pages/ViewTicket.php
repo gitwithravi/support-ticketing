@@ -478,7 +478,7 @@ class ViewTicket extends ViewRecord
             ->visible(function (Ticket $record) use ($currentUser): bool {
                 // Hide if user is not admin or building supervisor
                 if (! $currentUser || (! $currentUser->isAdmin() && $currentUser->user_type !== UserType::BUILDING_SUPERVISOR)) {
-                   
+
                     return false;
                 }
 
@@ -487,7 +487,7 @@ class ViewTicket extends ViewRecord
                     return false;
                 }
 
-                return ($record->status == TicketStatus::CLOSED);
+                return $record->status == TicketStatus::CLOSED;
             });
 
         $actions[] = Actions\EditAction::make()

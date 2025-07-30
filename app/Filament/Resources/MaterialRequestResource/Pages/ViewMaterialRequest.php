@@ -21,7 +21,7 @@ class ViewMaterialRequest extends ViewRecord
     {
         // Eager load relationships to avoid lazy loading issues
         $this->record->load(['createdBy', 'processedBy', 'items']);
-        
+
         return $data;
     }
 }

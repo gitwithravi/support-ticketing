@@ -32,10 +32,10 @@ class OtpVerification extends Notification implements ShouldQueue
     {
         return (new MailMessage)
             ->subject('Email Verification Code')
-            ->greeting('Hello ' . $notifiable->name . '!')
+            ->greeting('Hello '.$notifiable->name.'!')
             ->line('Thank you for registering with us. To complete your registration, please verify your email address.')
             ->line('Your verification code is:')
-            ->line('**' . $this->otp . '**')
+            ->line('**'.$this->otp.'**')
             ->line('This code will expire in 15 minutes.')
             ->line('If you didn\'t create an account, no further action is required.');
     }

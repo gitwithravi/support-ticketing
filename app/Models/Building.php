@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Building extends Model
@@ -28,7 +29,6 @@ class Building extends Model
         'total_rooms',
         'construction_year',
         'is_active',
-        'building_supervisor_id',
         'contact_info',
         'latitude',
         'longitude',
@@ -54,7 +54,18 @@ class Building extends Model
     }
 
     /**
-     * A building belongs to a supervisor (user).
+     * A building has many supervisors (users).
+     */
+    public function supervisors(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'building_supervisor')
+            ->withTimestamps();
+    }
+
+    /**
+     * Legacy method for backward compatibility - returns the first supervisor
+     *
+     * @deprecated Use supervisors() instead
      */
     public function supervisor(): BelongsTo
     {

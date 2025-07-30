@@ -46,7 +46,7 @@ class CategoryStatusPivotTable extends GoogleChartWidget
             $categoriesQuery->where('category_supervisor_id', $currentUser->id);
         } elseif ($currentUser && $currentUser->isBuildingSupervisor()) {
             // Building supervisors see tickets from their buildings only
-            $supervisedBuildingIds = $currentUser->supervisedBuildings()->pluck('id');
+            $supervisedBuildingIds = $currentUser->supervisedBuildings()->pluck('buildings.id');
             $categoriesQuery->whereHas('tickets', function ($query) use ($supervisedBuildingIds) {
                 $query->whereIn('building_id', $supervisedBuildingIds);
             });
@@ -83,7 +83,7 @@ class CategoryStatusPivotTable extends GoogleChartWidget
 
         // Apply user-based filtering to ticket counts
         if ($currentUser && $currentUser->isBuildingSupervisor()) {
-            $supervisedBuildingIds = $currentUser->supervisedBuildings()->pluck('id');
+            $supervisedBuildingIds = $currentUser->supervisedBuildings()->pluck('buildings.id');
             $ticketQuery->whereIn('building_id', $supervisedBuildingIds);
         } elseif ($currentUser && $currentUser->isAgent()) {
             $ticketQuery->where('assignee_id', $currentUser->id);

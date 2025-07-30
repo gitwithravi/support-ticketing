@@ -28,7 +28,7 @@ class BuildingFactory extends Factory
             'total_rooms' => fake()->numberBetween(10, 500),
             'construction_year' => fake()->numberBetween(1950, 2024),
             'is_active' => fake()->boolean(85),
-            'building_supervisor_id' => User::factory(),
+            // building_supervisor_id removed - will use afterCreating to attach supervisors
             'contact_info' => [
                 'phone' => fake()->phoneNumber(),
                 'email' => fake()->email(),
@@ -36,5 +36,21 @@ class BuildingFactory extends Factory
             'latitude' => fake()->latitude(),
             'longitude' => fake()->longitude(),
         ];
+    }
+
+    /**
+     * Configure the model factory.
+     */
+    public function configure(): static
+    {
+        return $this->afterCreating(function (\App\Models\Building $building) {
+            // Attach 1-3 random supervisors to the building
+            $supervisorCount = fake()->numberBetween(1, 3);
+            $supervisors = User::factory()
+                ->count($supervisorCount)
+                ->create(['user_type' => \App\Enums\Users\UserType::BUILDING_SUPERVISOR]);
+
+            $building->supervisors()->attach($supervisors);
+        });
     }
 }
