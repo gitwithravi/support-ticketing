@@ -13,12 +13,18 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Carbon;
 use Spatie\Tags\HasTags;
+use Filament\Panel;
+use Filament\Models\Contracts\FilamentUser;
 
-class Client extends Authenticatable
+class Client extends Authenticatable implements FilamentUser
 {
     /** @use HasFactory<\Database\Factories\ClientFactory> */
     use CanResetPassword, HasFactory, HasNotes, HasTags, HasUlids, Notifiable;
 
+    public function canAccessPanel(Panel $panel): bool
+    {
+        return true;
+    }
     /**
      * The attributes that are mass assignable.
      *
