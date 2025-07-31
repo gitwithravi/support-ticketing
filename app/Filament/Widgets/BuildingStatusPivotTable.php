@@ -45,12 +45,9 @@ class BuildingStatusPivotTable extends GoogleChartWidget
             // Building supervisors see only their supervised buildings
             $supervisedBuildingIds = $currentUser->supervisedBuildings()->pluck('buildings.id');
             $buildingsQuery->whereIn('id', $supervisedBuildingIds);
-        } elseif ($currentUser && $currentUser->isAgent()) {
-            // Agents see buildings from tickets assigned to them
-            $buildingsQuery->whereHas('tickets', function ($query) use ($currentUser) {
-                $query->where('assignee_id', $currentUser->id);
-            });
         }
+        // Remove the agent filter that hides buildings with 0 tickets
+        // Agents will see all buildings but only with ticket counts for their assigned tickets
 
         $buildings = $buildingsQuery->get();
 

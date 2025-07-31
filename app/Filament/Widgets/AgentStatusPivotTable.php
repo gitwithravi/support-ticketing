@@ -79,7 +79,7 @@ class AgentStatusPivotTable extends GoogleChartWidget
             $ticketCounts[$record->assignee_id][$record->status->value] = $record->count;
         }
 
-        // Build data rows
+        // Build data rows - show all agents, even those with 0 tickets
         foreach ($agents as $agent) {
             $row = [$agent->name];
             $total = 0;

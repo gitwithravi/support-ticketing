@@ -17,7 +17,7 @@ class CategoryStatusPivotTable extends GoogleChartWidget
 
     protected static ?array $options = [
         'width' => '100%',
-        'height' => 400,
+        'height' => 540,
         'alternatingRowStyle' => false,
         'cssClassNames' => [
             'headerRow' => 'header-style',
@@ -44,18 +44,9 @@ class CategoryStatusPivotTable extends GoogleChartWidget
         if ($currentUser && $currentUser->isCategorySupervisor()) {
             // Category supervisors see only their supervised categories
             $categoriesQuery->where('category_supervisor_id', $currentUser->id);
-        } elseif ($currentUser && $currentUser->isBuildingSupervisor()) {
-            // Building supervisors see tickets from their buildings only
-            $supervisedBuildingIds = $currentUser->supervisedBuildings()->pluck('buildings.id');
-            $categoriesQuery->whereHas('tickets', function ($query) use ($supervisedBuildingIds) {
-                $query->whereIn('building_id', $supervisedBuildingIds);
-            });
-        } elseif ($currentUser && $currentUser->isAgent()) {
-            // Agents see categories from tickets assigned to them
-            $categoriesQuery->whereHas('tickets', function ($query) use ($currentUser) {
-                $query->where('assignee_id', $currentUser->id);
-            });
         }
+        // Remove the building supervisor and agent filters that hide categories with 0 tickets
+        // Building supervisors and agents will see all categories but only with ticket counts for relevant tickets
 
         $categories = $categoriesQuery->get();
 
@@ -140,7 +131,7 @@ class CategoryStatusPivotTable extends GoogleChartWidget
     {
         return array_merge(parent::getOptions() ?? [], [
             'width' => '100%',
-            'height' => 400,
+            'height' => 540,
             'alternatingRowStyle' => false,
             'cssClassNames' => [
                 'headerRow' => 'bg-gray-100 font-bold',
