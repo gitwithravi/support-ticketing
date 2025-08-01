@@ -62,9 +62,13 @@
              ? "Resend in {$secondsRemaining}s" 
              : 'Resend Code' }}
         </button>
-        <a href="/client/login" class="font-medium text-primary-600 hover:underline">
+        <button
+          type="button"
+          wire:click="backToLogin"
+          class="font-medium text-primary-600 hover:underline"
+        >
           Back to Login
-        </a>
+        </button>
       </div>
     </div>
     

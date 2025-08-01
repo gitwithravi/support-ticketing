@@ -182,6 +182,15 @@ class VerifyOtp extends Page implements HasActions, HasForms
             ->size('lg');
     }
 
+    public function backToLogin(): void
+    {
+        Auth::guard('client')->logout();
+        session()->invalidate();
+        session()->regenerateToken();
+        
+        redirect('/client/login');
+    }
+
     public function getTitle(): string
     {
         return 'Verify Your Email';
